@@ -3,9 +3,9 @@ var config = {
 	zoom: .95,
 	timeline: {
 		timer: null,
-		width: 1100,
+		width: 800,
 		barWidth: 6,
-		xScale: d3.scale.linear().domain([2,1307]).range([20, 950])
+		xScale: d3.scale.linear().domain([2,1307]).range([20, 800])
 	}
 }
 
@@ -17,8 +17,8 @@ var global = {
 	data: null,
 	nycPaths: null,
 	worldPaths: null,
-	usMapWidth:650,
-	usMapHeight:650
+	usMapWidth:600,
+	usMapHeight:600
 	
 }
 
@@ -113,8 +113,8 @@ function renderMap(data, selector,width,height) {
 		.attr("cursor", "pointer")
 		.attr("stroke-opacity", 1)
 				.attr("stroke", "#000")
-				.attr("fill-opacity", 1)
-				.attr("fill", "#000")
+				.attr("fill-opacity", .1)
+				.attr("fill", "blue")
 				.on("click", function(d) {
 				});
 				
@@ -146,8 +146,16 @@ function renderNycMap(data) {
 		var projectedY = projection([parseFloat(d.Longitude),parseFloat(d.Latitude)])[1];
 		return projectedY
 	})
-	.attr("r",.2)
+	.attr("r",.3)
 	.attr("fill", "#fff")
+	.attr("opacity", 0.7)
+
+
+//	d3.selectAll("circle")
+//	.transition()
+//	.duration(20)
+//	.delay(function(d,i){return d.DateId*3})
+//	.attr("opacity", .7)
 	return map
 }
 
@@ -257,7 +265,7 @@ function updateMaps() {
 
 function initTimeline(data) {
 	var height = 70
-	var width = 950
+	var width = 800
 	var marginH = 20
 	var marginW = 4
 	var timeline = d3.select("#svg-timeline").append("svg");
@@ -400,7 +408,7 @@ function initTimeline(data) {
 
 function renderTimeline(data) {
 	var height = 70
-	var width = 950
+	var width = 800
 	var yScaleFlipped = d3.scale.linear().domain([1,100]).range([4, height-20]);
 
 	// Render the actual bars
@@ -456,7 +464,7 @@ function dataDidLoad(error, nycPaths, data) {
 		config.timeline.timer = setInterval(function() {
 			updateSliderRange(year, year + sliderRange)
 			updateMaps()
-			if(year+sliderRange >= 2014){
+			if(year+sliderRange >=1307){
 				timelineControlStop()
 			}
 			year = year + 1
