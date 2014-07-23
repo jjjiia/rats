@@ -5,7 +5,7 @@ var config = {
 		timer: null,
 		width: 1100,
 		barWidth: 6,
-		xScale: d3.scale.linear().domain([1880,2014]).range([20, 950])
+		xScale: d3.scale.linear().domain([2,1307]).range([20, 950])
 	}
 }
 
@@ -35,7 +35,6 @@ var utils = {
 		for (var i = start; i < end; i++) {
 			data.push(i)
 		}
-
 		return data
 	}
 }
@@ -100,7 +99,7 @@ function renderMap(data, selector,width,height) {
 	var projection = d3.geo.mercator()
 					.center([-74.25,40.9])
 					.translate([0, 0])
-					.scale(65000);
+					.scale(60000);
 	var path = d3.geo.path().projection(projection);
 	
 	var svg = d3.select(selector).append("svg")
@@ -130,13 +129,11 @@ function initNycMap(paths, data) {
 
 function renderNycMap(data) {
 	var map = d3.select("#svg-nyc-map").selectAll(".map-item")
-	var format = d3.time.format("%x");
-	var ratsByDate = table.group(data, ["Date"])
 	var projection = d3.geo.mercator()
 					.center([-74.25,40.9])
 					.translate([0, 0])
-					.scale(65000);
-	
+					.scale(60000);
+	d3.select("#svg-nyc-map svg").selectAll("circle").remove()				
 	d3.select("#svg-nyc-map svg").selectAll("circle")
 	.data(data)
 	.enter()
@@ -151,7 +148,6 @@ function renderNycMap(data) {
 	})
 	.attr("r",.2)
 	.attr("fill", "#fff")
-
 	return map
 }
 
@@ -175,7 +171,7 @@ d3.select("#resetAll")
 function resetAll(){
 	currentSelection.jurisdiction = null;
 	currentSelection.zipcode = null;
-	updateSliderRange(1880, 2014);
+	updateSliderRange(2, 1307);
 	updateMaps();
 }
 
@@ -236,75 +232,44 @@ function updateMaps() {
 
 	var startYear = Math.floor(xScale.invert(leftHandlePosition()))
 	var endYear = Math.floor(xScale.invert(rightHandlePosition()))
+	//console.log(startYear, endYear)
 	
 	var slider = d3.select("#svg-timeline .slider")
 	slider.property("timeline-year-start", startYear)
 	slider.property("timeline-year-end", endYear)
 
 	var data = global.data
-	
-	if(currentSelection.zipcode != null){
-		data = table.filter(table.group(data, ["zipcode"]), function(list, zipcode) {
-			return (zipcode == currentSelection.zipcode)
-		})
-	}
-	
-	if(currentSelection.jurisdiction != null){
-		data = table.filter(table.group(data, ["jurisdiction"]), function(list, jurisdiction) {
-			return (jurisdiction == currentSelection.jurisdiction)
-		})
-	}
-	
-	
-	var filteredData = table.filter(table.group(data, ["birthyear"]), function(list, year) {
+	var groupedData = table.group(data, ["DateId"])
+	var filteredData = table.filter(groupedData, function(list, year) {
 		year = parseFloat(year)
 		return (year >= startYear && year <= endYear)
 	})
-	
-	if(currentSelection.zipcode != null){
-		
-	} else if (currentSelection.jurisdiction != null){
-	}else{
-		renderNycMap(filteredData)
-		
-	}
-	
-	formatCompanyList(filteredData)
-	
-	d3.select("#currentSelection").html(formatDisplayText(filteredData))
-	
-	d3.select("#companyList").html(formatCompanyList(filteredData))
-	
-	d3.select("#seeCompanyList").html("... See Companies")
-	
-	d3.select("#svg-timeline .selected-year").classed("selected-year", false)
+
+	//console.log(filteredData.length)
+	renderNycMap(filteredData)
 	renderTimeline(data)
-	d3.select("#specialCountries").html(formatSpecialCountries(filteredData))
+	d3.select("#svg-timeline .selected-year").classed("selected-year", false)
+	var datalength = groupedData[startYear].length
+	var startDate = groupedData[startYear][0].Date
+	var endDate = groupedData[startYear][datalength-1].Date
+	d3.select("#selectionDetails").html(startDate + " to " + endDate)
 }
-
-
-function toTitleCase(str)
-{
-    return str.replace(/\w\S*/g, function(txt){return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();});
-}
-
 
 function initTimeline(data) {
-	
-	var height = 100
+	var height = 70
 	var width = 950
 	var marginH = 20
 	var marginW = 4
-	
 	var timeline = d3.select("#svg-timeline").append("svg");
-
+	
+	var format = d3.time.format("%m/%d/%Y");
+	var xTimeScale = d3.scale.linear().domain([2,1307]).range([format.parse("1/1/2010"), format.parse("1/1/2013")])
+	
 	// Render the Axes for the timeline
-
 	var xScale = config.timeline.xScale
-	var yScale = d3.scale.log().domain([1, width+20]).range([height-marginH,marginW]);
-
-	var xAxis = d3.svg.axis().scale(xScale).tickSize(1).ticks(16).tickFormat(d3.format("d"))
-	var yAxis = d3.svg.axis().scale(yScale).tickSize(1).orient("right").tickFormat(d3.format("d")).tickValues([1, 10, 100,1000]);
+	var yScale = d3.scale.linear().domain([0, width+20]).range([height-marginH,marginW])
+	var xAxis = d3.svg.axis().scale(xScale).tickSize(1).ticks(16).tickFormat(d3.format("d")).tickValues([format.parse("1/1/2013")])
+	var yAxis = d3.svg.axis().scale(yScale).tickSize(1).orient("right").tickFormat(d3.format("d")).tickValues([1, 10, 100]);
 
 	timeline.append("g")
 		.attr("transform", "translate(0," + (height-marginH) + ")")
@@ -315,7 +280,6 @@ function initTimeline(data) {
 		.call(yAxis);
 
 	// Add the sliders
-
 	var barwidth = config.timeline.barWidth
 
 	var slider = timeline.append("rect")
@@ -324,7 +288,7 @@ function initTimeline(data) {
 		.attr("y", 0)
 		.attr("width", width-20)
 		.attr("height", height-marginH)
-		.attr("fill", "#E1883B")
+		.attr("fill", "#fff")
 		.attr("opacity", 0.15)
 		.call(d3.behavior.drag()
 			.on("dragstart", function() {
@@ -353,12 +317,12 @@ function initTimeline(data) {
 
 	var leftHandle = timeline.append("rect")
 		.attr("class", "handle-left")
-		.attr("x", 20)
+		.attr("x", 22)
 		.attr("y", 0)
 		.attr("width", barwidth)
 		.attr("height", height-marginH)
-		.attr("fill", "#E1883B")
-		.attr("opacity", 0.3)
+		.attr("fill", "#fff")
+		.attr("opacity", 0.8)
 		.call(d3.behavior.drag()
 			.on("dragstart", function() {
 				d3.event.sourceEvent.stopPropagation();
@@ -389,8 +353,8 @@ function initTimeline(data) {
 		.attr("y", 0)
 		.attr("width", barwidth)
 		.attr("height", height-marginH)
-		.attr("fill", "#E1883B")
-		.attr("opacity", 0.3)
+		.attr("fill", "#fff")
+		.attr("opacity", 0.8)
 		.call(d3.behavior.drag()
 			.on("dragstart", function() {
 				d3.event.sourceEvent.stopPropagation();
@@ -411,82 +375,67 @@ function initTimeline(data) {
 				updateMaps()
 			})
 		)
+		var incidentsByDate = table.group(data, ["Date"])
+		
+		var format = d3.time.format("%m/%d/%Y");
+		var xTimeScale = d3.scale.linear().domain([2,1307]).range([format.parse("1/1/2010"), format.parse("1/1/2013")])
+		
+		var dateScale = d3.time.scale().domain([format.parse("1/1/2010"),format.parse("1/1/2013")]).range([0,width])
+		var parsedDate = format.parse("1/1/2010")
+		var reversedDate = format(new Date(parsedDate))
+		
+		
+		 //Add all of the histogram vertical bars
+		timeline.selectAll("rect")
+			.data(utils.range(2, 1307))
+			.enter()
+			.append("rect")
+			.attr("class", "timeline-item")
+		    .attr("x", function(d) {
+				return xScale(d)
+			})
+		
 	renderTimeline(data)
 }
 
 function renderTimeline(data) {
-	var height = 100
+	var height = 70
 	var width = 950
 	var yScaleFlipped = d3.scale.linear().domain([1,100]).range([4, height-20]);
 
 	// Render the actual bars
-	var incidentsByDate = table.group(data, ["Date"])
-	console.log(incidentsByDate)
-	var timeline = d3.select("#svg-timeline").selectAll(".timeline-item")
 	var format = d3.time.format("%x");
 	var dateScale = d3.time.scale().domain([format.parse("1/1/2010"),format.parse("1/1/2013")]).range([0,width])
 	
-	// Add all of the histogram vertical bars
-	timeline.selectAll("rect")
-		.data(data)
-		.enter()
-		.append("rect")
-		.attr("class", "timeline-item")
-	    .attr("x", function(d) {
-			console.log(d)
-			return dateScale(format.parse(d.Date))
-		})
+	var incidentsByDateId = table.group(data, ["DateId"])
+		
+		var timeline = d3.select("#svg-timeline").selectAll(".timeline-item")
 	
-	
-	timeline
-	.attr("x", 20)
-	    .attr("y", function(d) {
-			var a = incidentsByDate[d]
-			console.log(a)
+	    timeline.attr("y", function(d) {
+			var a = incidentsByDateId[d]
 			if(!a) {
 				return 0
 			} else {
 				return height - 20 - yScaleFlipped(a.length)
 			}
 		})
-		.attr("width", 5)
+		.attr("width", 2)
 		.attr("fill", function(d) {
 			var startYear = d3.select("#svg-timeline .slider").property("timeline-year-start")
 			var endYear = d3.select("#svg-timeline .slider").property("timeline-year-end")
 			if(d <= startYear || d >= endYear) {
 				return "#AAA"
 			} else {
-				return "#eee"
+				return "#fff"
 			}
 		})
 		.attr("height", function(d) {
-			var a = companiesByYear[d]
-			if(!a) {
-				return 0;
-			} else {
-				return yScaleFlipped(a.length)
-			}
-		})
-		.on("click", function(d) {
-			d3.select("#svg-timeline .selected-year").classed("selected-year", false)
-			d3.select(this).classed("selected-year", true)
-			
-			if(d+10 > 2013){
-				var yearsafter = 2014-d
-				var yearsbefore = 20-yearsafter
-				updateSliderRange(d-yearsbefore,d+yearsafter);
-			}else{
-				updateSliderRange(d-9,d+10);				
-			}
-			updateSliderLocation();
-			updateMaps();			
+			return yScaleFlipped(incidentsByDateId[d].length)
 		})
 }
-
 function timelineControlStop() {
 	$("#timeline-controls .play").show()
 	$("#timeline-controls .stop").hide()
-
 	clearInterval(config.timeline.timer)
 }
 
@@ -495,17 +444,14 @@ function dataDidLoad(error, nycPaths, data) {
 	global.data = data	
 	var nycMap = initNycMap(nycPaths, data)
 	var timeline = initTimeline(data)
-	d3.selectAll(".slider").attr("opacity", 0)
-	d3.selectAll(".handle-left").attr("opacity", 0)
-	d3.selectAll(".handle-right").attr("opacity", 0)
-	d3.select("#svg-timeline").selectAll(".timeline-item").attr("fill", "#aaa")
+
 	
 	$("#timeline-controls .play").click(function() {
 		$("#timeline-controls .play").hide()
 		$("#timeline-controls .stop").show()
 
 //		var direction = 1
-		var sliderRange = 20
+		var sliderRange = 50
 		var year = Math.floor(config.timeline.xScale.invert(leftHandlePosition()))
 		config.timeline.timer = setInterval(function() {
 			updateSliderRange(year, year + sliderRange)
@@ -514,7 +460,7 @@ function dataDidLoad(error, nycPaths, data) {
 				timelineControlStop()
 			}
 			year = year + 1
-		}, 100)
+		}, 10)
 	})
 
 	$("#timeline-controls .stop").click(timelineControlStop)
