@@ -17,8 +17,8 @@ var global = {
 	data: null,
 	nycPaths: null,
 	worldPaths: null,
-	usMapWidth:600,
-	usMapHeight:600
+	usMapWidth:580,
+	usMapHeight:580
 	
 }
 
@@ -99,7 +99,7 @@ function renderMap(data, selector,width,height) {
 	var projection = d3.geo.mercator()
 					.center([-74.25,40.9])
 					.translate([0, 0])
-					.scale(60000);
+					.scale(55000);
 	var path = d3.geo.path().projection(projection);
 	
 	var svg = d3.select(selector).append("svg")
@@ -113,8 +113,8 @@ function renderMap(data, selector,width,height) {
 		.attr("cursor", "pointer")
 		.attr("stroke-opacity", 1)
 				.attr("stroke", "#000")
-				.attr("fill-opacity", .1)
-				.attr("fill", "blue")
+				.attr("fill-opacity", .2)
+				.attr("fill", "green")
 				.on("click", function(d) {
 				});
 				
@@ -132,7 +132,7 @@ function renderNycMap(data) {
 	var projection = d3.geo.mercator()
 					.center([-74.25,40.9])
 					.translate([0, 0])
-					.scale(60000);
+					.scale(55000);
 	d3.select("#svg-nyc-map svg").selectAll("circle").remove()				
 	d3.select("#svg-nyc-map svg").selectAll("circle")
 	.data(data)
@@ -146,17 +146,46 @@ function renderNycMap(data) {
 		var projectedY = projection([parseFloat(d.Longitude),parseFloat(d.Latitude)])[1];
 		return projectedY
 	})
-	.attr("r",.3)
+	.attr("r",.5)
 	.attr("fill", "#fff")
-	.attr("opacity", 0.7)
+	.attr("opacity", 0.4)
+	
 
-
-//	d3.selectAll("circle")
-//	.transition()
-//	.duration(20)
-//	.delay(function(d,i){return d.DateId*3})
-//	.attr("opacity", .7)
+	//.on("mouseover", function(d){
+	//	console.log("over")
+	//	var currentcx = d3.select(this).attr("cx")
+	//	var currentcy = d3.select(this).attr("cy")
+	//	var randomarray = [1,2,4,2,4]
+	//	
+	//	
+	//	
+	//	d3.select("#svg-nyc-map svg")
+    //
+	//	.append("circle")
+	//    .attr("r", 8)
+	//	.attr("fill", "red")
+	//	.attr("opacity",1)
+	//    .attr("cx", function(d){
+	//		return currentcx
+	//    })
+	//	.attr("cy", function(d){
+	//		return currentcy
+	//    })
+	//})
 	return map
+}
+function scatterDots(){
+	var max = 10
+	var min = 8
+
+	
+	var wind = []
+	for(var i =0; i < 20; i++){
+		var x = Math.floor(Math.random() * (360 - min + 1)+min)
+		var y = Math.floor(Math.random() * (10 - min)+min)
+		wind.push([x,y])
+	}
+	return wind
 }
 
 //determine daterange for map selection
@@ -427,7 +456,7 @@ function renderTimeline(data) {
 				return height - 20 - yScaleFlipped(a.length)
 			}
 		})
-		.attr("width", 2)
+		.attr("width", .5)
 		.attr("fill", function(d) {
 			var startYear = d3.select("#svg-timeline .slider").property("timeline-year-start")
 			var endYear = d3.select("#svg-timeline .slider").property("timeline-year-end")
@@ -438,6 +467,7 @@ function renderTimeline(data) {
 			}
 		})
 		.attr("height", function(d) {
+			return 1
 			return yScaleFlipped(incidentsByDateId[d].length)
 		})
 }
