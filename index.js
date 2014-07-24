@@ -289,7 +289,9 @@ function updateMaps() {
 	var datalength = groupedData[startYear].length
 	var startDate = groupedData[startYear][0].Date
 	var endDate = groupedData[startYear][datalength-1].Date
-	d3.select("#selectionDetails").html(startDate + " to " + endDate)
+	var startDate = startDate.split("/").join(".")
+	var endDate = endDate.split("/").join(".")
+	d3.select("#selectionDetails").html(startDate + " - " + endDate+"<br/>Average High Temperature:<br/>Average Daily Incidents")
 }
 
 function initTimeline(data) {
@@ -441,9 +443,6 @@ function renderTimeline(data) {
 	var yScaleFlipped = d3.scale.linear().domain([1,100]).range([4, height-20]);
 
 	// Render the actual bars
-	var format = d3.time.format("%x");
-	var dateScale = d3.time.scale().domain([format.parse("1/1/2010"),format.parse("1/1/2013")]).range([0,width])
-	
 	var incidentsByDateId = table.group(data, ["DateId"])
 		
 		var timeline = d3.select("#svg-timeline").selectAll(".timeline-item")
@@ -457,13 +456,14 @@ function renderTimeline(data) {
 			}
 		})
 		.attr("width", .5)
-		.attr("fill", function(d) {
+		.attr("fill", "green")
+		.attr("opacity", function(d) {
 			var startYear = d3.select("#svg-timeline .slider").property("timeline-year-start")
 			var endYear = d3.select("#svg-timeline .slider").property("timeline-year-end")
 			if(d <= startYear || d >= endYear) {
-				return "#AAA"
+				return .8
 			} else {
-				return "#fff"
+				return 1
 			}
 		})
 		.attr("height", function(d) {
@@ -471,18 +471,45 @@ function renderTimeline(data) {
 			return yScaleFlipped(incidentsByDateId[d].length)
 		})
 }
+
+function initTemperature(data){
+	var height = 70
+	var width = 800
+	var marginH = 20
+	var marginW = 4
+	var yScaleFlipped = d3.scale.linear().domain([1,100]).range([4, height-20]);
+	//console.log(data)
+	var xScale = config.timeline.xScale
+	
+	var timeline = d3.select("#svg-timeline").append("svg").selectAll("circle")
+	.data(data)
+	.enter()
+	.append("circle")
+	.attr("cx", function(d,i){
+		console.log(d); 
+		
+		return xScale(i)
+	})
+	.attr("cy", function(d,i){
+		console.log(d["Max TemperatureF"]); 
+		return yScaleFlipped(d["Max TemperatureF"])
+	})
+	.attr("r", .5)
+	.attr("fill", "#fff")
+}
+
 function timelineControlStop() {
 	$("#timeline-controls .play").show()
 	$("#timeline-controls .stop").hide()
 	clearInterval(config.timeline.timer)
 }
 
-function dataDidLoad(error, nycPaths, data) {
+function dataDidLoad(error, nycPaths, data, temperature) {
 	global.nycPaths = nycPaths
 	global.data = data	
+	var temperature = initTemperature(temperature)
 	var nycMap = initNycMap(nycPaths, data)
 	var timeline = initTimeline(data)
-
 	
 	$("#timeline-controls .play").click(function() {
 		$("#timeline-controls .play").hide()
@@ -510,6 +537,7 @@ $(function() {
 	queue()
 		.defer(d3.json, cityGeojson)
 		.defer(d3.csv, csv)
+		.defer(d3.csv, temperature)
 		.await(dataDidLoad);
 })
 
