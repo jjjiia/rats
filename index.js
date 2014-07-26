@@ -17,6 +17,7 @@ var global = {
 	data: null,
 	nycPaths: null,
 	worldPaths: null,
+	temperature:null,
 	usMapWidth:580,
 	usMapHeight:580
 	
@@ -284,7 +285,7 @@ function updateMaps() {
 
 	//console.log(filteredData.length)
 	renderNycMap(filteredData)
-	renderTimeline(data)
+	//renderTimeline(data)
 	d3.select("#svg-timeline .selected-year").classed("selected-year", false)
 	var datalength = groupedData[startYear].length
 	var startDate = groupedData[startYear][0].Date
@@ -295,7 +296,7 @@ function updateMaps() {
 }
 
 function initTimeline(data) {
-	var height = 70
+	var height = 100
 	var width = 800
 	var marginH = 20
 	var marginW = 4
@@ -434,7 +435,7 @@ function initTimeline(data) {
 				return xScale(d)
 			})
 		
-	renderTimeline(data)
+	//renderTimeline(data)
 }
 
 function renderTimeline(data) {
@@ -472,30 +473,70 @@ function renderTimeline(data) {
 		})
 }
 
-function initTemperature(data){
-	var height = 70
+function drawTemperatureTimeline(data){
+	var height = 100
 	var width = 800
 	var marginH = 20
-	var marginW = 4
-	var yScaleFlipped = d3.scale.linear().domain([1,100]).range([4, height-20]);
-	//console.log(data)
+	var marginW = 4	
+	var yScaleTemperature = d3.scale.linear().domain([1,100]).range([height-20, height/2]);
+	var yScaleIncidents = d3.scale.linear().domain([1,70]).range([height/2, 4]);
+	
 	var xScale = config.timeline.xScale
 	
-	var timeline = d3.select("#svg-timeline").append("svg").selectAll("circle")
-	.data(data)
-	.enter()
-	.append("circle")
-	.attr("cx", function(d,i){
-		console.log(d); 
+	var xAxis = d3.svg.axis().scale(xScale).tickSize(1).ticks(16).tickFormat(d3.format("d"))
+	//.tickValues(function(d,i){return i})
+
+	//var yAxis = d3.svg.axis().scale(yScale).tickSize(1).orient("right").tickFormat(d3.format("d")).tickValues([0,100]);
+	
+	var temperatureline = d3.svg.line()
+	    .x(function(d,i) { return xScale(i);})
+	    .y(function(d) { return yScaleTemperature(d["Max TemperatureF"]);})
+	    .interpolate("basis");
+	
+	var incidentsline = d3.svg.line()
+	    .x(function(d,i) { return xScale(i);})
+	    .y(function(d) { return yScaleIncidents(d["Incident Reports"]);})
+	    .interpolate("basis");	
+	
+	var temperatureGraph = d3.select("#svg-timeline").append("svg")
+	.append("path")
+	.attr("d", temperatureline(data))
+	.attr("stroke", "#aaa")
+	.attr("fill", "none")
+	
+	var temperatureGraph = d3.select("#svg-timeline").append("svg")
+	.append("path")
+	.attr("d", incidentsline(data))
+	.attr("stroke", "green")
+	.attr("fill", "none")
+	.attr("stroke-width", .8)
+	
+	var minMax = findMinMax(data)
+	d3.select("#incidentsRange").html(minMax[1]+" - "+ minMax[0])
+	d3.select("#temperatureRange").html(minMax[3] + "&deg"+" - "+ minMax[2] + "&deg F")
 		
-		return xScale(i)
-	})
-	.attr("cy", function(d,i){
-		console.log(d["Max TemperatureF"]); 
-		return yScaleFlipped(d["Max TemperatureF"])
-	})
-	.attr("r", .5)
-	.attr("fill", "#fff")
+}
+
+function findMinMax(data){
+	var temperatures = []
+	var reports = []
+	
+	for(var row in data){
+		var currentReports = data[row]["Incident Reports"]
+		var currentTemperature = data[row]["Max TemperatureF"]
+		if(currentReports != 0){
+			reports.push(currentReports)
+		}
+		if(currentTemperature != 0){
+		temperatures.push(currentTemperature)
+		}
+	}
+	var minReports = Math.min.apply(null,reports)
+	var minTemperature = Math.min.apply(null,temperatures)
+	var maxReports =  Math.max.apply(null,reports)
+	var maxTemperature = Math.max.apply(null,temperatures)
+	
+	 return [maxReports,minReports, maxTemperature, minTemperature]
 }
 
 function timelineControlStop() {
@@ -507,9 +548,16 @@ function timelineControlStop() {
 function dataDidLoad(error, nycPaths, data, temperature) {
 	global.nycPaths = nycPaths
 	global.data = data	
-	var temperature = initTemperature(temperature)
+	global.temperature = temperature
 	var nycMap = initNycMap(nycPaths, data)
+	var temperature = drawTemperatureTimeline(temperature)
+
 	var timeline = initTimeline(data)
+	
+	
+	d3.selectAll("#svg-timeline .slider").attr("opacity", 0)
+	d3.selectAll("#svg-timeline .handle-left").attr("opacity", 0)
+	d3.selectAll("#svg-timeline .handle-right").attr("opacity", 0)
 	
 	$("#timeline-controls .play").click(function() {
 		$("#timeline-controls .play").hide()
@@ -524,7 +572,7 @@ function dataDidLoad(error, nycPaths, data, temperature) {
 			if(year+sliderRange >=1307){
 				timelineControlStop()
 			}
-			year = year + 1
+			year = year + 5
 		}, 10)
 	})
 

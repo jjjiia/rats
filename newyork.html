@@ -36,7 +36,6 @@
 		<div id="svg-nyc-map"></div>
 		<div id="svg-world-map"></div>
 		<div id="svg-timeline"></div>
-		<div id="svg-temperature"></div>
 	</div>
 	
 	<div id = "header">
@@ -51,8 +50,10 @@
 	
 	
 	<div id = "axisLabels">
-		<div id = "incidents">Number of Incidents</div>
-		<div id = "temperature">High Temperature</div>
+		<div id = "incidents">Daily Incidents</div>
+		<div id = "temperature">Daily High Temperature</div>
+		<div id = "incidentsRange"></div>
+		<div id = "temperatureRange"></div>
 	</div>
 	<div id="timeline-controls">
 		<p class="play">Play</p>
@@ -79,7 +80,7 @@
 	<script type="text/javascript" charset="utf-8">
 	var csv = "data_processed/rats_coordinates_dateid.csv"
 	var cityGeojson = "data_processed/nyc-borough-boundaries-polygon.geojson"
-	
+	var temperature = "data_processed/rats_temperature.csv"
 	</script>
 	<div id = "resetAll">Reset</div>
 	
@@ -96,7 +97,19 @@
 			<div id='essayBox-close' class="glyphicon glyphicon-remove"></div>
 			<div id='essayContent'>
 				<br/><br/>
-				<p>rats rats rats
+				<p>
+					This map shows 38163 complaints about rodents between January 1st 2010 and September 1st 2013. 
+				</p>
+				<p>Rodent complaints come from the 311 services dataset, and includes reports of both sightings of rodents, evidence of rodents, and unsanitary rodent conditions. The complaints over this period of time averages 28.5 per day. Overall, more 311 complaints are recorded when temperatures are higher across categories, this is particularly true in the case of rodent complaints. 
+				</p>
+				<p>	The rodent population as reflected in the complaint locations are very similar to the concentration of people in the city. What is surprising about this data is how few complaints about rodents occur in a city of more than 8 million. This is especially interesting when compared with the number of complaints of damaged, dead, or overgrown trees, totaling 220,288 reports over the same time period or an average of 164.5 per day. 
+				</p>
+				<p>	Although both issues are a part of public health, it would seem that rodents for residents of New York City are a more private rather than city-related problem. As we go forward in mapping and making sense of 311 data and how the service is used, we will not only be discovering conditions in the cities we map, but also to a certain extent the types of services we expect from our city government, and the conditions under which we take on problems ourselves. 
+
+				</p>
+				<p>	About the Data:</p>
+				<p>	
+					Rodent complaints are recorded by the 311 service in New York City. These are made public through the gov.data initiative and can be found at https://nycopendata.socrata.com/Social-Services/311-Service-Requests-from-2010-to-Present/erm2-nwe9. The dataset in its entirety contains all 311 service requests from the infrastructural (road repair, traffic lights, electrical outages) to isolated incidents (heating, lead testing, graffiti removal and noise complaints), as long as they directly affect the everyday lives of citizens. We isolated the noise complaint requests from this larger dataset.
 	</p>
 			</div>
 		</div>
