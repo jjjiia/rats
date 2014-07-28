@@ -3,7 +3,7 @@
 <style>
 
 circle {
-  fill: red;
+  fill: black;
 }
 
 </style>
@@ -20,13 +20,14 @@ var svg = d3.select("body").append("svg")
   .append("g")
     .attr("transform", "translate(" + width / 2 + "," + height / 2 + ")");
 	
-	var max = 10
-	var min = 8
+	
+	var max = 4
+	var min = 0
 
 	var wind = []
 	for(var i =0; i < 20; i++){
 		var x = Math.floor(Math.random() * (360 - min + 1)+min)
-		var y = Math.floor(Math.random() * (10 - min)+min)
+		var y = Math.floor(Math.random() * (4 - min)+min)
 		wind.push([x,y])
 	}
 
@@ -37,11 +38,12 @@ var svg = d3.select("body").append("svg")
 	.append("circle")
     .attr("r", 2)	
       .attr("transform", function(d) {
-          return "rotate(" + (180 + (d + 10 * (Math.random() - .5))) + ")"
+          return "rotate(" + (180 + (d[0] + 10 * (Math.random() - .5))) + ")"
               + "translate(0," + Math.max(0, d[1] + 2 * (Math.random() - .5)) * 10 + ")";
       })
 	  .transition()
 	  .delay(function(d,i){return i*100})
+	  .attr("r", 1)
 //});
 
 </script>

@@ -5,7 +5,7 @@ var config = {
 		timer: null,
 		width: 800,
 		barWidth: 6,
-		xScale: d3.scale.linear().domain([2,1307]).range([20, 800])
+		xScale: d3.scale.linear().domain([0,1305]).range([20, 800])
 	}
 }
 
@@ -147,46 +147,57 @@ function renderNycMap(data) {
 		var projectedY = projection([parseFloat(d.Longitude),parseFloat(d.Latitude)])[1];
 		return projectedY
 	})
-	.attr("r",.5)
+	.attr("r",function(d,i){return 1.5})
 	.attr("fill", "#fff")
-	.attr("opacity", 0.4)
-	
+	.attr("opacity", 0.1)
+//	.transition()
+//	.delay(function(d,i){
+//		return i/3*1})
+//	.attr("r",2)
+//	.transition()
+//	.duration(1000)
+//	.attr("opacity", .1)
 
-	//.on("mouseover", function(d){
-	//	console.log("over")
-	//	var currentcx = d3.select(this).attr("cx")
-	//	var currentcy = d3.select(this).attr("cy")
-	//	var randomarray = [1,2,4,2,4]
-	//	
-	//	
-	//	
-	//	d3.select("#svg-nyc-map svg")
-    //
-	//	.append("circle")
-	//    .attr("r", 8)
-	//	.attr("fill", "red")
-	//	.attr("opacity",1)
-	//    .attr("cx", function(d){
-	//		return currentcx
-	//    })
-	//	.attr("cy", function(d){
-	//		return currentcy
-	//    })
-	//})
+	//scatterDots()
+
 	return map
 }
+
 function scatterDots(){
+	
 	var max = 10
 	var min = 8
-
-	
 	var wind = []
-	for(var i =0; i < 20; i++){
+	for(var i =0; i < 5; i++){
 		var x = Math.floor(Math.random() * (360 - min + 1)+min)
 		var y = Math.floor(Math.random() * (10 - min)+min)
 		wind.push([x,y])
 	}
-	return wind
+	
+	
+	var datapoints = d3.select("#svg-nyc-map svg").selectAll("circle");	
+	for(var i = 0; i < datapoints[0].length; i++){
+		var currentX = datapoints[0][i]["cx"]["animVal"]["value"]
+		var currentY = datapoints[0][i]["cy"]["animVal"]["value"]
+		d3.select("#svg-nyc-map svg").selectAll("circle")
+		.append("circle")
+		.attr("cx", currentX + Math.random())
+		.attr("cy", currentY + Math.random())
+		.attr("r", 20)
+		.attr("fill", "#fff")
+		.attr("opacity", .1)
+
+//		d3.select("#svg-nyc-map svg").selectAll("circle")
+//		.data(wind)
+//		.enter()
+//		.append("circle")
+//	    .attr("r", 2)	
+//	      .attr("transform", function(d) {
+//	          return "rotate(" + (180 + (d[0] + 10 * (Math.random() - .5))) + ")"
+//	              + "translate(0," + Math.max(0, d[1] + 2 * (Math.random() - .5)) * 10 + ")";
+//	      })
+	}
+	
 }
 
 //determine daterange for map selection
@@ -209,7 +220,7 @@ d3.select("#resetAll")
 function resetAll(){
 	currentSelection.jurisdiction = null;
 	currentSelection.zipcode = null;
-	updateSliderRange(2, 1307);
+	updateSliderRange(0, 1305);
 	updateMaps();
 }
 
@@ -250,9 +261,8 @@ function updateHandleLocations() {
 	var rightHandle = d3.select("#svg-timeline .handle-right")
 
 	var slider = d3.select("#svg-timeline .slider")
-	var startX = parseFloat(slider.attr("x")) - config.timeline.barWidth
+	var startX = parseFloat(slider.attr("x"))
 	var endX = parseFloat(slider.attr("x")) + parseFloat(slider.attr("width"))
-
 	leftHandle.attr("x", startX)
 	rightHandle.attr("x", endX)
 }
@@ -270,7 +280,6 @@ function updateMaps() {
 
 	var startYear = Math.floor(xScale.invert(leftHandlePosition()))
 	var endYear = Math.floor(xScale.invert(rightHandlePosition()))
-	//console.log(startYear, endYear)
 	
 	var slider = d3.select("#svg-timeline .slider")
 	slider.property("timeline-year-start", startYear)
@@ -287,12 +296,28 @@ function updateMaps() {
 	renderNycMap(filteredData)
 	//renderTimeline(data)
 	d3.select("#svg-timeline .selected-year").classed("selected-year", false)
-	var datalength = groupedData[startYear].length
-	var startDate = groupedData[startYear][0].Date
-	var endDate = groupedData[startYear][datalength-1].Date
-	var startDate = startDate.split("/").join(".")
-	var endDate = endDate.split("/").join(".")
-	d3.select("#selectionDetails").html(startDate + " - " + endDate+"<br/>Average High Temperature:<br/>Average Daily Incidents")
+	var datalength = filteredData.length
+	
+	
+	var startDate = filteredData[0].Date
+	var endDate = filteredData[datalength-1].Date
+	
+	var startDate = startDate.split("/")
+	var endDate = endDate.split("/")
+	for(var i in startDate){
+		if(startDate[i].length == 1){
+			startDate[i] = "0"+startDate[i]
+		}
+	}
+	for(var i in endDate){
+		if(endDate[i].length == 1){
+			endDate[i] = "0"+endDate[i]
+		}
+	}
+	var startDate = startDate[2]+"."+startDate[0]+"."+startDate[1]
+	var endDate = endDate[2]+"."+endDate[0]+"."+endDate[1]
+	d3.select("#startYear").html(startDate)
+	d3.select("#endYear").html("- "+endDate)
 }
 
 function initTimeline(data) {
@@ -303,7 +328,7 @@ function initTimeline(data) {
 	var timeline = d3.select("#svg-timeline").append("svg");
 	
 	var format = d3.time.format("%m/%d/%Y");
-	var xTimeScale = d3.scale.linear().domain([2,1307]).range([format.parse("1/1/2010"), format.parse("1/1/2013")])
+	var xTimeScale = d3.scale.linear().domain([0,1305]).range([format.parse("1/1/2010"), format.parse("1/1/2013")])
 	
 	// Render the Axes for the timeline
 	var xScale = config.timeline.xScale
@@ -341,8 +366,8 @@ function initTimeline(data) {
 				var x = d3.event.x - d3.select(this).property("drag-offset-x")
 				var w = parseFloat(d3.select(this).attr("width"))
 
-				if(x <= 20) {
-					x = 20
+				if(x <= 22) {
+					x = 22
 				}
 
 				if((x + w) >= width) {
@@ -372,10 +397,9 @@ function initTimeline(data) {
 
 				var x = d3.event.x - (d3.select(this).attr("width") / 2)
 				
-				if(x <= 20) {
-					x = 20
+				if(x <= 22) {
+					x = 22
 				}
-
 				if(x >= rightHandlePosition()) {
 					x = rightHandlePosition()
 				}
@@ -418,7 +442,7 @@ function initTimeline(data) {
 		var incidentsByDate = table.group(data, ["Date"])
 		
 		var format = d3.time.format("%m/%d/%Y");
-		var xTimeScale = d3.scale.linear().domain([2,1307]).range([format.parse("1/1/2010"), format.parse("1/1/2013")])
+		var xTimeScale = d3.scale.linear().domain([0,1305]).range([format.parse("1/1/2010"), format.parse("1/1/2013")])
 		
 		var dateScale = d3.time.scale().domain([format.parse("1/1/2010"),format.parse("1/1/2013")]).range([0,width])
 		var parsedDate = format.parse("1/1/2010")
@@ -427,7 +451,7 @@ function initTimeline(data) {
 		
 		 //Add all of the histogram vertical bars
 		timeline.selectAll("rect")
-			.data(utils.range(2, 1307))
+			.data(utils.range(0,1305))
 			.enter()
 			.append("rect")
 			.attr("class", "timeline-item")
@@ -558,22 +582,27 @@ function dataDidLoad(error, nycPaths, data, temperature) {
 	d3.selectAll("#svg-timeline .slider").attr("opacity", 0)
 	d3.selectAll("#svg-timeline .handle-left").attr("opacity", 0)
 	d3.selectAll("#svg-timeline .handle-right").attr("opacity", 0)
-	
+
+//		var direction = 1
+
 	$("#timeline-controls .play").click(function() {
 		$("#timeline-controls .play").hide()
 		$("#timeline-controls .stop").show()
 
 //		var direction = 1
-		var sliderRange = 50
+		var sliderRange = 90
 		var year = Math.floor(config.timeline.xScale.invert(leftHandlePosition()))
+		if(year<0){
+			year = 0
+		}
 		config.timeline.timer = setInterval(function() {
 			updateSliderRange(year, year + sliderRange)
 			updateMaps()
-			if(year+sliderRange >=1307){
+			if(year+sliderRange >=1305){
 				timelineControlStop()
 			}
-			year = year + 5
-		}, 10)
+			year = year + 14
+		}, 1)
 	})
 
 	$("#timeline-controls .stop").click(timelineControlStop)
