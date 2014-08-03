@@ -147,56 +147,40 @@ function renderNycMap(data) {
 		var projectedY = projection([parseFloat(d.Longitude),parseFloat(d.Latitude)])[1];
 		return projectedY
 	})
-	.attr("r",function(d,i){return 1.5})
+	.attr("r",function(d,i){return 1})
 	.attr("fill", "#fff")
-	.attr("opacity", 0.1)
-//	.transition()
-//	.delay(function(d,i){
-//		return i/3*1})
-//	.attr("r",2)
-//	.transition()
-//	.duration(1000)
-//	.attr("opacity", .1)
-
-	//scatterDots()
+	.attr("opacity", 0.1);
+	
 
 	return map
 }
 
-function scatterDots(){
-	
-	var max = 10
-	var min = 8
-	var wind = []
-	for(var i =0; i < 5; i++){
-		var x = Math.floor(Math.random() * (360 - min + 1)+min)
-		var y = Math.floor(Math.random() * (10 - min)+min)
-		wind.push([x,y])
-	}
-	
-	
-	var datapoints = d3.select("#svg-nyc-map svg").selectAll("circle");	
-	for(var i = 0; i < datapoints[0].length; i++){
-		var currentX = datapoints[0][i]["cx"]["animVal"]["value"]
-		var currentY = datapoints[0][i]["cy"]["animVal"]["value"]
-		d3.select("#svg-nyc-map svg").selectAll("circle")
-		.append("circle")
-		.attr("cx", currentX + Math.random())
-		.attr("cy", currentY + Math.random())
-		.attr("r", 20)
-		.attr("fill", "#fff")
-		.attr("opacity", .1)
+function scatterDots(projectedX, projectedY){
+		var max = 4
+		var min = 0
 
-//		d3.select("#svg-nyc-map svg").selectAll("circle")
-//		.data(wind)
-//		.enter()
-//		.append("circle")
-//	    .attr("r", 2)	
-//	      .attr("transform", function(d) {
-//	          return "rotate(" + (180 + (d[0] + 10 * (Math.random() - .5))) + ")"
-//	              + "translate(0," + Math.max(0, d[1] + 2 * (Math.random() - .5)) * 10 + ")";
-//	      })
-	}
+		var wind = []
+		for(var i =0; i < 20; i++){
+			var x = Math.floor(Math.random() * (360 - min + 1)+min)
+			var y = Math.floor(Math.random() * (4 - min)+min)
+			wind.push([x,y])
+		}
+
+	//d3.json("readme.json", function(error, wind) {
+	  d3.selectAll("circle") .append("g")
+	    .attr("transform", "translate(" +projectedX + "," +projectedY+ ")")
+	      .data(wind)
+	    .enter()
+		.append("circle")
+	    .attr("r", 2)	
+	      .attr("transform", function(d) {
+	          return "rotate(" + (180 + (d[0] + 10 * (Math.random() - .5))) + ")"
+	              + "translate(0," + Math.max(0, d[1] + 2 * (Math.random() - .5)) * 10 + ")";
+	      })
+		  .attr("fill", "red")
+		  .transition()
+		  .delay(function(d,i){return i*100})
+		  .attr("r", 1)
 	
 }
 
@@ -384,61 +368,11 @@ function initTimeline(data) {
 		.attr("class", "handle-left")
 		.attr("x", 22)
 		.attr("y", 0)
-		.attr("width", barwidth)
-		.attr("height", height-marginH)
-		.attr("fill", "#fff")
-		.attr("opacity", 0.8)
-		.call(d3.behavior.drag()
-			.on("dragstart", function() {
-				d3.event.sourceEvent.stopPropagation();
-			})
-			.on("drag", function() {
-				timelineControlStop()
-
-				var x = d3.event.x - (d3.select(this).attr("width") / 2)
-				
-				if(x <= 22) {
-					x = 22
-				}
-				if(x >= rightHandlePosition()) {
-					x = rightHandlePosition()
-				}
-				
-
-				d3.select(this).attr("x", x)
-				updateSliderLocation()
-				updateMaps()
-			})
-		)
 
 	var rightHandle = timeline.append("rect")
 		.attr("class", "handle-right")
 		.attr("x", width)
 		.attr("y", 0)
-		.attr("width", barwidth)
-		.attr("height", height-marginH)
-		.attr("fill", "#fff")
-		.attr("opacity", 0.8)
-		.call(d3.behavior.drag()
-			.on("dragstart", function() {
-				d3.event.sourceEvent.stopPropagation();
-			})
-			.on("drag", function() {
-				timelineControlStop()
-
-				var x = d3.event.x - (d3.select(this).attr("width") / 2)
-
-				if(x <= leftHandlePosition()) {
-					x = leftHandlePosition()
-				}
-				if(x >= width) {
-					x = width
-				}
-				d3.select(this).attr("x", x)
-				updateSliderLocation()
-				updateMaps()
-			})
-		)
 		var incidentsByDate = table.group(data, ["Date"])
 		
 		var format = d3.time.format("%m/%d/%Y");
@@ -447,7 +381,6 @@ function initTimeline(data) {
 		var dateScale = d3.time.scale().domain([format.parse("1/1/2010"),format.parse("1/1/2013")]).range([0,width])
 		var parsedDate = format.parse("1/1/2010")
 		var reversedDate = format(new Date(parsedDate))
-		
 		
 		 //Add all of the histogram vertical bars
 		timeline.selectAll("rect")
@@ -458,8 +391,6 @@ function initTimeline(data) {
 		    .attr("x", function(d) {
 				return xScale(d)
 			})
-		
-	//renderTimeline(data)
 }
 
 function renderTimeline(data) {
