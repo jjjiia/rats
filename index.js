@@ -134,24 +134,64 @@ function renderNycMap(data) {
 					.center([-74.25,40.9])
 					.translate([0, 0])
 					.scale(55000);
-	d3.select("#svg-nyc-map svg").selectAll("circle").remove()				
-	d3.select("#svg-nyc-map svg").selectAll("circle")
-	.data(data)
+	d3.select("#svg-nyc-map svg").selectAll("circle").remove()	
+	
+	var w = 1000;
+	var h = 1000;
+				
+	var circle = d3.select("#svg-nyc-map svg").selectAll("circle")
+	.data(data.map(function(d){
+		return {
+			x: projection([parseFloat(d.Longitude),parseFloat(d.Latitude)])[0],
+	        y: projection([parseFloat(d.Longitude),parseFloat(d.Latitude)])[1],
+	        dx: Math.random() - .5,
+	        dy: Math.random() - .5,
+		}
+	}))
+	
 	.enter()
 	.append("circle")
-	.attr("cx", function(d){
-		var projectedX = projection([parseFloat(d.Longitude),parseFloat(d.Latitude)])[0];
-		return projectedX
-	})
-	.attr("cy",function(d){
-		var projectedY = projection([parseFloat(d.Longitude),parseFloat(d.Latitude)])[1];
-		return projectedY
-	})
+	
+	
+	//.attr("cx", function(d){
+	//	var projectedX = projection([parseFloat(d.Longitude),parseFloat(d.Latitude)])[0];
+	//	return projectedX
+	//})
+	//.attr("cy",function(d){
+	//	var projectedY = projection([parseFloat(d.Longitude),parseFloat(d.Latitude)])[1];
+	//	return projectedY
+	//})
 	.attr("r",function(d,i){return 1})
 	.attr("fill", "#fff")
-	.attr("opacity", 0.1);
-	
+	.attr("opacity", 0.3);
+	var start = Date.now(),
+	    frames = 0;
+	d3.timer(function() {
 
+	  // Update the FPS meter.
+	  var now = Date.now(), duration = now - start;
+	  if (duration >= 1) frames = 0, start = now;
+
+	  // Update the circle positions.
+	  circle
+	      .attr("cx", function(d) {
+			d.x += d.dx; 
+			var originX = parseFloat(projection([parseFloat(d.Longitude),parseFloat(d.Latitude)])[0])
+		   if (d.x > originX+2) {
+			   d.x = originX
+		   }
+		    else if (d.x < originX-2) {
+				d.x = originX
+			} 
+			return d.x; })
+	      .attr("cy", function(d) { 
+			  d.y += d.dy; 
+			  var originY = parseFloat(projection([parseFloat(d.Longitude),parseFloat(d.Latitude)])[1])
+			  if (d.y > originY+2) d.y = originY; 
+			  else if (d.y < originY-2) d.y = originY; 
+			  return d.y; 
+		  });
+	});
 	return map
 }
 
