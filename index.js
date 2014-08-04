@@ -140,33 +140,37 @@ function renderNycMap(data) {
 	
 	var w = 1000;
 	var h = 1000;
-				
 	var circle = d3.select("#svg-nyc-map svg").selectAll("circle")
 	.data(data)
 	.enter()
-	.append("circle")
-	.attr("cx", function(d){
-		if(d.Longitude)
-		var projectedX = projection([parseFloat(d.Longitude),parseFloat(d.Latitude)])[0];
-		return projectedX
-	})
-	.attr("cy",function(d){
-		var projectedY = projection([parseFloat(d.Longitude),parseFloat(d.Latitude)])[1];
-		return projectedY
-	})
-	.attr("r",function(d,i){return 1})
-	.attr("fill", function(d){
-		if(d.Longitude == 0 || d.Latitude==0){
-			return "none"
-		}else{
-			return "#fff"			
-		}
-	})
-	.attr("opacity", 0.1)
+				
+	
+	
+	for(var j = 0; j < 3; j++){
+		circle.append("circle")
+		.attr("cx", function(d){
+			var projectedX = projection([parseFloat(d.Longitude),parseFloat(d.Latitude)])[0];
+			return projectedX+(Math.random()-.5)*j*5
+		})
+		.attr("cy",function(d){
+			var projectedY = projection([parseFloat(d.Longitude),parseFloat(d.Latitude)])[1];
+			return projectedY+(Math.random()-.5)*j*5
+		})
+		.attr("r",function(d,i){return 1})
+		.attr("fill", function(d){
+			if(d.Longitude == 0 || d.Latitude==0){
+				return "none"
+			}else{
+				return "white"			
+			}
+		})
+		.attr("opacity", 0.05)
+	}
 	
 	return map
 }
 
+//not in use
 function scatterDots(projectedX, projectedY){
 		var max = 4
 		var min = 0
@@ -539,7 +543,7 @@ function initTimeline(data) {
 			})
 			.on("drag", function(d, e) {
 				timelineControlStop()
-
+				
 				var x = d3.event.x - d3.select(this).property("drag-offset-x")
 				var w = parseFloat(d3.select(this).attr("width"))
 
@@ -554,6 +558,8 @@ function initTimeline(data) {
 				d3.select(this).attr("x", x)
 				updateHandleLocations()
 				updateMaps()
+				d3.select("#svg-nyc-map svg").selectAll("circle").attr("opacity", .3)
+				
 			})
 		)
 
@@ -723,12 +729,13 @@ function dataDidLoad(error, nycPaths, data, temperature) {
 		config.timeline.timer = setInterval(function() {
 			updateSliderRange(year, year + sliderRange)
 			updateMaps()
+			d3.select("#svg-nyc-map svg").selectAll("circle").attr("opacity", .3)
 			d3.selectAll(".slider").attr("opacity", .1)
 			
 			if(year+sliderRange >=1305){
 				timelineControlStop()
 			}
-			year = year + 1
+			year = year + 2
 		}, 1)
 	})
 
