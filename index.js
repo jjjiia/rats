@@ -223,7 +223,6 @@ function resetAll(){
 	d3.select("#boroughPercent").html("Total: " + global.data.length + "<br/> Average: "+parseInt(global.data.length/1667) + " per day")
 }
 
-// TODO: Rename these functions so they are in some sort of "timeline" namespace
 
 function leftHandlePosition() {
 	return parseFloat(d3.select("#svg-timeline").select(".handle-left").attr("x"))
@@ -266,11 +265,22 @@ function updateHandleLocations() {
 	rightHandle.attr("x", endX)
 }
 
+function objectSize(obj) {
+    var size = 0, key;
+    for (key in obj) {
+        if (obj.hasOwnProperty(key)) size++;
+    }
+    return size;
+};
+
 function statsByBorough(data){
 	var groupedData = table.group(data,["borough"])
+	var datesInRange = objectSize(table.group(data, ["Date"]))
+	var totalDatesInRange = objectSize(table.group(global.data, ["Date"]))
+	
 	//console.log(groupedData)
 	var sum = data.length
-	var perDay = parseInt(sum/7.0)
+	var overallPerDay = parseInt(global.data.length/totalDatesInRange)
 	var detailedText = []
 	var population = {
 		"Brooklyn": 2592149,
@@ -284,7 +294,7 @@ function statsByBorough(data){
 		var currentBorough = toTitleCase(item); 
 		var currentLength = groupedData[item].length;
 		var currentPercent = parseInt(currentLength/sum *100)
-		var currentPerDay = parseInt(sum/7)
+		var currentPerDay = parseInt(sum/datesInRange)
 		var currentPopulation = population[currentBorough]
 		var currentPopPercent = parseInt(currentPopulation/population["total"]*100)
 		if(currentBorough != "Unspecified"){
@@ -292,23 +302,132 @@ function statsByBorough(data){
 		}
 	}
 
-	d3.select("#boroughPercent").html("Total: " + sum + "<br/> Average: "+currentPerDay+" per day")
+	d3.select("#boroughPercent").html("<span style=\"color:green\">Overall Average: "+overallPerDay+"</span><br/>Current Average: "+currentPerDay)
+	
+	
+	d3.select("#averageGraph svg").remove()
+	var averageGraph = d3.select("#averageGraph").append("svg").append("g")
+	var xScale = d3.scale.linear().domain([2,77]).range([0,150])
+	var barwidth = 2
+	
+	averageGraph.append("rect")
+	.attr("x", 0 )
+	.attr("y", 0)
+	.attr("width", 150)
+	.attr("height", 10)
+	.attr("fill", "green")
+	.attr("opacity", .2)
+	
+	
+	averageGraph.append("rect")
+	.attr("x",xScale(77))
+	.attr("y",0)
+	.attr("width", barwidth)
+	.attr("height", 10)
+	.attr("fill", "green")
+	
+	averageGraph.append("text")
+	.attr("x",xScale(77) - 8)
+	.attr("y", 25)
+	.text("77")
+	.attr("fill", "green")
+	averageGraph.append("text")
+	.attr("x",xScale(77) - 8)
+	.attr("y", 35)
+	.text("max")
+	.attr("fill", "green")
+	
+	averageGraph.append("rect")
+	.attr("x",xScale(2))
+	.attr("y",0)
+	.attr("width", barwidth)
+	.attr("height", 10)
+	.attr("fill", "green")
+	
+	averageGraph.append("text")
+	.attr("x",xScale(2))
+	.attr("y", 25)
+	.text("2")
+	.attr("fill", "green")
+	averageGraph.append("text")
+	.attr("x",xScale(2))
+	.attr("y", 35)
+	.text("min")
+	.attr("fill", "green")
+	
+	averageGraph.append("rect")
+	.attr("x",xScale(overallPerDay) )
+	.attr("y", 0)
+	.attr("width", barwidth)
+	.attr("height", 10)
+	.attr("fill", "green")
+	
+	averageGraph.append("text")
+	.attr("x",xScale(overallPerDay) - 8)
+	.attr("y", 25)
+	.text(overallPerDay)
+	.attr("fill", "green")
+	averageGraph.append("text")
+	.attr("x",xScale(overallPerDay) - 8)
+	.attr("y", 35)
+	.text("average")
+	.attr("fill", "green")
+	
+	averageGraph.append("rect")
+	.attr("x",xScale(currentPerDay) )
+	.attr("y", 0)
+	.attr("width", barwidth)
+	.attr("height", 10)
+	.attr("stroke", "white")
+	.attr("fill", "none")
+	
 	return(detailedText)
 }
 
 function boroughBarGraph(data){
-	var wScale = d3.scale.linear().domain([0,100]).range([0,200])
-	console.log(data)
+	var wScale = d3.scale.linear().domain([0,50]).range([0,200])
+	var barWidth = 10
 	d3.select("#boroughBarGraph svg").remove()
-	d3.select("#boroughBarGraph").append("svg").selectAll("rect")
+	var boroughGraph = d3.select("#boroughBarGraph").append("svg").append("g").selectAll("rect")
 	.data(data)
 	.enter()
-	.append("rect")
-	.attr("x", 0)
-	.attr("y", function(d,i){return i*14})
-	.attr("height", 7)
-	.attr("width", function(d){console.log(d); return wScale(d[1])})
+	
+	boroughGraph.append("rect")
+	.attr("x", 120)
+	.attr("y", function(d,i){return i*barWidth*3+4})
+	.attr("height", barWidth-4)
+	.attr("width", function(d){return wScale(d[1])})
 	.attr("fill", "#fff")
+	
+	boroughGraph.append("text")
+	.attr("x", function(d){return wScale(d[1])+130})
+	.attr("y",function(d,i){return i*barWidth*3+8})
+	.text(function(d){return d[1]+"%"})
+	.attr("fill", "#fff")
+	.attr("font-size", 9)
+	
+	
+	boroughGraph.append("rect")
+	.attr("x", 120)
+	.attr("y", function(d,i){return i*barWidth*3+barWidth+4})
+	.attr("height", barWidth-4)
+	.attr("width", function(d){return wScale(d[2])})
+	.attr("fill", "green")
+	.attr("opacity", .5)
+	boroughGraph.append("text")
+	.attr("x", function(d){return wScale(d[2])+130})
+	.attr("y",function(d,i){return i*barWidth*3+barWidth*2})
+	.text(function(d){return d[2]+"%"})
+	.attr("fill", "green")
+	.attr("font-size", 9)
+	
+	boroughGraph.append("text")
+	.attr("x", 0)
+	.attr("y",function(d,i){return (i+1)*barWidth*3-15})
+	.text(function(d){return d[0]})
+	.attr("fill", "#fff")
+	//.attr("text-anchor", "end")
+	
 }
 
 
@@ -361,7 +480,6 @@ function updateMaps() {
 	renderNycMap(filteredData)
 	statsByBorough(filteredData)
 	statsByZip(filteredData)
-	boroughBarGraph(statsByBorough(filteredData))
 	
 	//renderTimeline(data)
 	d3.select("#svg-timeline .selected-year").classed("selected-year", false)
