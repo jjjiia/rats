@@ -77,17 +77,17 @@ a{
 #axisLabels{
 	position:absolute;
 	top:620px;
-	left:810px; 
+	left:840px; 
 }
 
 #axisLabels #incidents{
 	font-size:20px;
-	font-family: 'Dawning of a New Day', cursive;
+	font-family: 'Dawning of a New Day';
 	color:green;
 }
 #axisLabels #temperature{
 	font-size:20px;
-	font-family: 'Dawning of a New Day', cursive;
+	font-family: 'Dawning of a New Day';
 }
 
 #axisLabels #incidentsRange{
@@ -102,34 +102,46 @@ a{
 #timeline-controls .stop {
 	display:none;
 }
-
-
+#selectionDetails{
+	position:absolute;
+	top:150px;
+	left:650px;
+	width:300px;
+}
+#selectionDetails #boroughPercent{
+	position:absolute;
+	top:20px;
+	left:0px;
+	font-size:13px;
+	letter-spacing:4px;
+}
+#selectionDetails #boroughBarGraph
+{
+	position:absolute;
+	top:80px;
+	left:0px;
+	font-size:13px;
+	letter-spacing:4px;
+}
 #selectionDetails #startYear{
 	position:absolute;
-	top:180px;
-	left:90px;
-	font-size:16px;
-	font-family: 'Dawning of a New Day', cursive;
+	top:0px;
+	left:0px;
+	font-size:13px;
 	letter-spacing:4px;
+	color:#fff;
 }
 
 #selectionDetails #endYear{
 	position:absolute;
-	top:180px;
-	left:190px;
-	font-size:16px;
-	font-family: 'Dawning of a New Day', cursive;
+	top:0px;
+	left:110px;
+	font-size:13px;
 	letter-spacing:4px;
+	color:#fff;
+	
 }
 
-#specialCountries{
-	position:absolute;
-	top:300px;
-	left:430px;
-	font-size:10px;
-	color:#666;
-	line-height:110%;
-}
 #hongkong, #cayman, #antilles, #virgin{cursor:pointer;}
 #hongkong:hover{color:red;}
  #cayman:hover{color:red;}
@@ -174,19 +186,17 @@ a{
   left: 95%;
 }
 
-#resetAll{font-family: 'Dawning of a New Day', cursive; position:absolute;top:140px;left:150px;color:#eee;cursor:pointer;font-size:24px;}
+#resetAll{font-family: 'Dawning of a New Day'; position:absolute;top:140px;left:150px;color:#eee;cursor:pointer;font-size:24px;}
 #resetAll:hover{color:green;cursor:pointer;}
 #resetAll:active{color:#eee;cursor:pointer;}
 
-#timeline-controls{font-family: 'Dawning of a New Day', cursive;position:absolute;top:140px;left:90px;color:#eee;cursor:pointer;font-size:24px;}
+#timeline-controls{font-family: 'Dawning of a New Day';position:absolute;top:140px;left:90px;color:#eee;cursor:pointer;font-size:24px;}
 #timeline-controls:hover{color:green;cursor:pointer;}
 #timeline-controls:active{color:#eee;cursor:pointer;}
 #showMore{color:#ddd;}
 #showMore:hover{color:#aaa;cursor:pointer;text-shadow: 1px 1px 12px #aaa;text-decoration:none;}
 #showMore:active{color:#ff2222;cursor:pointer;text-shadow: 1px 1px 12px #aaa;text-decoration:none;}
 
-#seeCompanyList:hover{color:#666;cursor:pointer;text-shadow: 1px 1px 12px #aaa;text-decoration:none;}
-#seeCompanyList:active{color:#ff2222;cursor:pointer;text-shadow: 1px 1px 12px #aaa;text-decoration:none;}
 	
 #footer i.fa-plus {opacity: 0.5;}
 #footer{font-size:10px;min-width:900px;position:relative;float:bottom;padding-left:10px;padding-right:10px;padding-top:10px;margin-top:20px;height:30px;line-height:100%;color:#aaa;width:100%;background-color:black;}
@@ -198,17 +208,15 @@ a{
 /*light boxes*/
 #essayBox{ position:absolute; top:100px;display: none;height: 610px; border-radius: 5px;opacity: 0.0; color:#aaa;padding-left: 60px; padding-right: 120px; 
 	font-size: 16px;letter-spacing: 1px;background-color:rgba(0,0,0, 0.9);font-family: 'EB Garamond', serif;z-index:200; }
-#essayBox2{  position:absolute; top:95px;display: none; height: 360px; width:1000px; border-radius: 5px;  opacity: 0.0;color : #444; padding-left: 80px; padding-right: 120px;font-size: 12px;letter-spacing: 1px; background-color:rgba(255, 255, 255, 0.9);font-family: 'EB Garamond', serif; z-index:200; overflow:auto;}
+#essayBox2{  position:absolute; top:240px; height: 360px; width:400px; display: none;
+	opacity: 0.0; color :#fff; padding-left: 80px; padding-right: 120px;
+	font-size: 12px;letter-spacing: 1px; background-color:rgba(0,0,0, 0.5);font-family: 'EB Garamond', serif; z-index:200; overflow:auto;}
 #essayBox-close { cursor: pointer; height: 15%;width: 5%; padding: 5px; color:rgb(1,1,1); z-index:100;}
 #essayBox-close2 {cursor: pointer; height: 15%;width: 5%;padding: 5px; color:rgb(1,1,1); z-index:100;}
 #essayContent p {margin-bottom: 10px;margin-left:100px;margin-right:150px;z-index:90;}
 #essayContent table{margin-left:100px;margin-right:150px;font-size:11px;}
 #essayContent a {color: black;text-decoration: underline;z-index:90;}
 
-#companyList{font-size:14px;}
-#companyList table{table-layout:fixed;}
-#companyList td, #companyList th{text-align:left;vertical-align:top;}
-#companyList p{ margin-bottom: 10px;margin-left:30px;margin-right:120px;z-index:9999;}
 
 #feedback{position:relative; float:right;text-align:right;}
 #credit{position:relative; float:left;text-align:left;}

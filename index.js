@@ -19,8 +19,8 @@ var global = {
 	worldPaths: null,
 	temperature:null,
 	usMapWidth:580,
-	usMapHeight:580
-	
+	usMapHeight:580,
+	dataLength:null
 }
 
 //put currentSelection in to global
@@ -128,6 +128,8 @@ function initNycMap(paths, data) {
 	renderNycMap(data)
 }
 
+
+
 function renderNycMap(data) {
 	var map = d3.select("#svg-nyc-map").selectAll(".map-item")
 	var projection = d3.geo.mercator()
@@ -140,58 +142,28 @@ function renderNycMap(data) {
 	var h = 1000;
 				
 	var circle = d3.select("#svg-nyc-map svg").selectAll("circle")
-	.data(data.map(function(d){
-		return {
-			x: projection([parseFloat(d.Longitude),parseFloat(d.Latitude)])[0],
-	        y: projection([parseFloat(d.Longitude),parseFloat(d.Latitude)])[1],
-	        dx: Math.random() - .5,
-	        dy: Math.random() - .5,
-		}
-	}))
-	
+	.data(data)
 	.enter()
 	.append("circle")
-	
-	
-	//.attr("cx", function(d){
-	//	var projectedX = projection([parseFloat(d.Longitude),parseFloat(d.Latitude)])[0];
-	//	return projectedX
-	//})
-	//.attr("cy",function(d){
-	//	var projectedY = projection([parseFloat(d.Longitude),parseFloat(d.Latitude)])[1];
-	//	return projectedY
-	//})
+	.attr("cx", function(d){
+		if(d.Longitude)
+		var projectedX = projection([parseFloat(d.Longitude),parseFloat(d.Latitude)])[0];
+		return projectedX
+	})
+	.attr("cy",function(d){
+		var projectedY = projection([parseFloat(d.Longitude),parseFloat(d.Latitude)])[1];
+		return projectedY
+	})
 	.attr("r",function(d,i){return 1})
-	.attr("fill", "#fff")
-	.attr("opacity", 0.3);
-	var start = Date.now(),
-	    frames = 0;
-	d3.timer(function() {
-
-	  // Update the FPS meter.
-	  var now = Date.now(), duration = now - start;
-	  if (duration >= 1) frames = 0, start = now;
-
-	  // Update the circle positions.
-	  circle
-	      .attr("cx", function(d) {
-			d.x += d.dx; 
-			var originX = parseFloat(projection([parseFloat(d.Longitude),parseFloat(d.Latitude)])[0])
-		   if (d.x > originX+2) {
-			   d.x = originX
-		   }
-		    else if (d.x < originX-2) {
-				d.x = originX
-			} 
-			return d.x; })
-	      .attr("cy", function(d) { 
-			  d.y += d.dy; 
-			  var originY = parseFloat(projection([parseFloat(d.Longitude),parseFloat(d.Latitude)])[1])
-			  if (d.y > originY+2) d.y = originY; 
-			  else if (d.y < originY-2) d.y = originY; 
-			  return d.y; 
-		  });
-	});
+	.attr("fill", function(d){
+		if(d.Longitude == 0 || d.Latitude==0){
+			return "none"
+		}else{
+			return "#fff"			
+		}
+	})
+	.attr("opacity", 0.1)
+	
 	return map
 }
 
@@ -224,6 +196,7 @@ function scatterDots(projectedX, projectedY){
 	
 }
 
+
 //determine daterange for map selection
 function dateRangeForSelection(selectedData){
 	var selectedDataByTime = table.group(selectedData, ["birthyear"])
@@ -244,8 +217,10 @@ d3.select("#resetAll")
 function resetAll(){
 	currentSelection.jurisdiction = null;
 	currentSelection.zipcode = null;
-	updateSliderRange(0, 1305);
+	updateSliderRange(1, 1305);
+	d3.selectAll("#svg-timeline .slider").attr("opacity", 0)
 	updateMaps();
+	d3.select("#boroughPercent").html("Total: " + global.data.length + "<br/> Average: "+parseInt(global.data.length/1667) + " per day")
 }
 
 // TODO: Rename these functions so they are in some sort of "timeline" namespace
@@ -291,14 +266,80 @@ function updateHandleLocations() {
 	rightHandle.attr("x", endX)
 }
 
+function statsByBorough(data){
+	var groupedData = table.group(data,["borough"])
+	//console.log(groupedData)
+	var sum = data.length
+	var perDay = parseInt(sum/7.0)
+	var detailedText = []
+	var population = {
+		"Brooklyn": 2592149,
+		"Manhattan":1626159,
+		"Staten Island":472621,
+		"Bronx":1418733,
+		"Queens":2296175,
+		"total":8405837
+	} 
+	for(var item in groupedData){
+		var currentBorough = toTitleCase(item); 
+		var currentLength = groupedData[item].length;
+		var currentPercent = parseInt(currentLength/sum *100)
+		var currentPerDay = parseInt(sum/7)
+		var currentPopulation = population[currentBorough]
+		var currentPopPercent = parseInt(currentPopulation/population["total"]*100)
+		if(currentBorough != "Unspecified"){
+			detailedText.push([currentBorough, currentPercent, currentPopPercent])
+		}
+	}
+
+	d3.select("#boroughPercent").html("Total: " + sum + "<br/> Average: "+currentPerDay+" per day")
+	return(detailedText)
+}
+
+function boroughBarGraph(data){
+	var wScale = d3.scale.linear().domain([0,100]).range([0,200])
+	console.log(data)
+	d3.select("#boroughBarGraph svg").remove()
+	d3.select("#boroughBarGraph").append("svg").selectAll("rect")
+	.data(data)
+	.enter()
+	.append("rect")
+	.attr("x", 0)
+	.attr("y", function(d,i){return i*14})
+	.attr("height", 7)
+	.attr("width", function(d){console.log(d); return wScale(d[1])})
+	.attr("fill", "#fff")
+}
+
+
+function statsByType(data){
+	var groupedData = table.group(data,["complaintType"])
+}
+
+function statsByZip(data){
+	var groupedData = table.group(data,["zipcode"])
+	var zipcodes = []
+	for (var zip in groupedData){
+		var currentZip = zip
+		var currentLength = groupedData[zip].length;
+		zipcodes.push([currentZip, currentLength])
+	}
+	
+	zipcodes.sort(
+	  function(a,b) {
+	   return b[1]-a[1] || a[0].localeCompare(b[0]);
+	  }
+	);
+}
+
+function toTitleCase(str)
+{
+    return str.replace(/\w\S*/g, function(txt){return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();});
+}
 function updateMaps() {
 	d3.selectAll(".d3-tip-nyc").remove()
 	d3.selectAll(".d3-tip-world").remove()
 	d3.selectAll(".d3-tip").remove()
-
-	d3.selectAll(".slider").attr("opacity", .1)
-	d3.selectAll(".handle-left").attr("opacity", .3)
-	d3.selectAll(".handle-right").attr("opacity", .3)
 
 	var xScale = config.timeline.xScale
 
@@ -318,6 +359,10 @@ function updateMaps() {
 
 	//console.log(filteredData.length)
 	renderNycMap(filteredData)
+	statsByBorough(filteredData)
+	statsByZip(filteredData)
+	boroughBarGraph(statsByBorough(filteredData))
+	
 	//renderTimeline(data)
 	d3.select("#svg-timeline .selected-year").classed("selected-year", false)
 	var datalength = filteredData.length
@@ -352,21 +397,11 @@ function initTimeline(data) {
 	var timeline = d3.select("#svg-timeline").append("svg");
 	
 	var format = d3.time.format("%m/%d/%Y");
-	var xTimeScale = d3.scale.linear().domain([0,1305]).range([format.parse("1/1/2010"), format.parse("1/1/2013")])
+	var xTimeScale = d3.scale.linear().domain([0,1305]).range([format.parse("1/1/2010"), format.parse("7/30/2013")])
 	
 	// Render the Axes for the timeline
 	var xScale = config.timeline.xScale
-	var yScale = d3.scale.linear().domain([0, width+20]).range([height-marginH,marginW])
-	var xAxis = d3.svg.axis().scale(xScale).tickSize(1).ticks(16).tickFormat(d3.format("d")).tickValues([format.parse("1/1/2013")])
-	var yAxis = d3.svg.axis().scale(yScale).tickSize(1).orient("right").tickFormat(d3.format("d")).tickValues([1, 10, 100]);
 
-	timeline.append("g")
-		.attr("transform", "translate(0," + (height-marginH) + ")")
-		.call(xAxis);
-
-	timeline.append("g")
-		.attr("transform", "translate(" + (width) + ",0)")
-		.call(yAxis);
 
 	// Add the sliders
 	var barwidth = config.timeline.barWidth
@@ -390,8 +425,8 @@ function initTimeline(data) {
 				var x = d3.event.x - d3.select(this).property("drag-offset-x")
 				var w = parseFloat(d3.select(this).attr("width"))
 
-				if(x <= 22) {
-					x = 22
+				if(x <= 20) {
+					x = 20
 				}
 
 				if((x + w) >= width) {
@@ -416,9 +451,9 @@ function initTimeline(data) {
 		var incidentsByDate = table.group(data, ["Date"])
 		
 		var format = d3.time.format("%m/%d/%Y");
-		var xTimeScale = d3.scale.linear().domain([0,1305]).range([format.parse("1/1/2010"), format.parse("1/1/2013")])
+		var xTimeScale = d3.scale.linear().domain([0,1305]).range([format.parse("1/1/2010"), format.parse("7/30/2013")])
 		
-		var dateScale = d3.time.scale().domain([format.parse("1/1/2010"),format.parse("1/1/2013")]).range([0,width])
+		var dateScale = d3.time.scale().domain([format.parse("1/1/2010"),format.parse("7/30/2013")]).range([0,width])
 		var parsedDate = format.parse("1/1/2010")
 		var reversedDate = format(new Date(parsedDate))
 		
@@ -548,20 +583,21 @@ function dataDidLoad(error, nycPaths, data, temperature) {
 	var temperature = drawTemperatureTimeline(temperature)
 
 	var timeline = initTimeline(data)
-	
-	
+	global.dataLength =data.length
 	d3.selectAll("#svg-timeline .slider").attr("opacity", 0)
-	d3.selectAll("#svg-timeline .handle-left").attr("opacity", 0)
-	d3.selectAll("#svg-timeline .handle-right").attr("opacity", 0)
 
 //		var direction = 1
-
+	statsByBorough(data)
+	statsByZip(data)
+	boroughBarGraph(statsByBorough(data))
+	d3.select("#startYear").html("2010.01.01")
+	d3.select("#endYear").html("- 2013.08.01")
+	
 	$("#timeline-controls .play").click(function() {
 		$("#timeline-controls .play").hide()
 		$("#timeline-controls .stop").show()
-
 //		var direction = 1
-		var sliderRange = 90
+		var sliderRange = 7		
 		var year = Math.floor(config.timeline.xScale.invert(leftHandlePosition()))
 		if(year<0){
 			year = 0
@@ -569,10 +605,12 @@ function dataDidLoad(error, nycPaths, data, temperature) {
 		config.timeline.timer = setInterval(function() {
 			updateSliderRange(year, year + sliderRange)
 			updateMaps()
+			d3.selectAll(".slider").attr("opacity", .1)
+			
 			if(year+sliderRange >=1305){
 				timelineControlStop()
 			}
-			year = year + 14
+			year = year + 1
 		}, 1)
 	})
 
@@ -621,13 +659,13 @@ var essayBoxShown = false;
 
  //ESSAY box 2
  var essayBoxShown2 = false;
-  $('#seeCompanyList').click(function(e){
+  $('#boroughBarGraph svg').click(function(e){
       e.preventDefault();
       essayBoxShown2 = !essayBoxShown2;
       if (essayBoxShown2) {
           $('#essayBox2').css('display', 'block');
           $('#essayBox2').animate({'opacity':1.0}, 500);
-          $(this).text('... Hide Companies ');
+          $(this).text('... Less ');
       } else {
           closeEssayBox2();
           $(this).text('... See Companies ');
@@ -636,7 +674,7 @@ var essayBoxShown = false;
     $('#essayBox-close2').click(function(){
  //	   console.log("close")
       closeEssayBox2();
-      $('#seeCompanyList').text('... See Companies ');
+      $('#boroughBarGraph svg').text('... More ');
     });
 
 
