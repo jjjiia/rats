@@ -61,7 +61,11 @@ a{
 }
 
 #containers {width:1000px;height:700px;position:relative;float:top;}
-
+#containers #ratsloader{
+	position:absolute; left:200px;
+	top:300px;
+}
+	
 #containers #svg-nyc-map svg {position:relative; float:top; margin-top:30px; padding-top:30px; margin:80px;border:1px solid black;}
 #containers #svg-timeline svg{
 	width:1000px;
@@ -103,16 +107,16 @@ a{
 #selectionDetails{
 	position:absolute;
 	top:150px;
-	left:650px;
+	left:690px;
 	width:300px;
+	height:450px;
 	color:#fff;
-	
 }
 #selectionDetails #boroughPercent{
 	position:absolute;
-	top:30px;
+	top:60px;
 	left:0px;
-	font-size:11px;
+	font-size:12px;
 	letter-spacing:4px;
 }
 #selectionDetails #boroughBarGraph
@@ -144,8 +148,8 @@ a{
 }
 #selectionDetails #averageGraph{
 	position:absolute;
-	top:70px;
-	left:00px;
+	top:100px;
+	left:0px;
 	font-size:11px;
 	letter-spacing:4px;
 	color:#fff;
@@ -199,7 +203,7 @@ a{
 #timeline-controls:active{color:#eee;cursor:pointer;}
 #showMore{color:#ddd;}
 #showMore:hover{color:#aaa;cursor:pointer;text-shadow: 1px 1px 12px #aaa;text-decoration:none;}
-#showMore:active{color:#ff2222;cursor:pointer;text-shadow: 1px 1px 12px #aaa;text-decoration:none;}
+#showMore:active{color:green;cursor:pointer;text-shadow: 1px 1px 12px #aaa;text-decoration:none;}
 
 	
 #footer i.fa-plus {opacity: 0.5;}
@@ -210,8 +214,12 @@ a{
 .footer-highlight-link{color: rgba(100,100,100,1.0);cursor: pointer;text-decoration: underline;}
 .footer-plus {color: #656566;}
 /*light boxes*/
-#essayBox{ position:absolute; top:100px;display: none;height: 610px; border-radius: 5px;opacity: 0.0; color:#aaa;padding-left: 60px; padding-right: 120px; 
-	font-size: 16px;letter-spacing: 1px;background-color:rgba(0,0,0, 0.9);font-family: 'EB Garamond', serif;z-index:200; }
+#essayBox{ position:absolute; top:100px; display: none; height: 610px; border-radius: 5px;opacity: 0.0; color:#fff;padding-left: 0px; padding-right: 120px; 
+	font-size: 14px;letter-spacing: 2px;background-color:rgba(0,0,0, 0.9);font-family: 'EB Garamond', serif;z-index:200; }
+	#essayBox td{
+		line-height:200%;
+		padding:5px;
+	}
 #essayBox2{  position:absolute; top:240px; height: 360px; width:400px; display: none;
 	opacity: 0.0; color :#fff; padding-left: 80px; padding-right: 120px;
 	font-size: 12px;letter-spacing: 1px; background-color:rgba(0,0,0, 0.5);font-family: 'EB Garamond', serif; z-index:200; overflow:auto;}
@@ -228,60 +236,16 @@ a{
 #essayBox-close2{position:relative;float:right;height:30px;}
 
 
-.d3-tip {
-  line-height: 1;
-  padding: 4px;
-  background: #ECAB23;
-  color: #fff;
-  border-radius: 3px;
-}
-.d3-tip:after {
-  box-sizing: border-box;
-  display: inline;
-  font-size: 9px;
-  width: 100%;
-  line-height: 1;
-  color: #ECAB23;
-  content: "\25BC";
-  position: absolute;
-  text-align: center;
-}
-.d3-tip.n:after {
-  margin: -1px 0 0 0;
-  top: 100%;
-  left: 0;
-}
-.d3-tip-nyc {
+.timeline-tip {
   line-height: 1;
   padding: 2px;
-  background: #ff2222;
-  color: #fff;
+  color: #aaa;
   border-radius: 3px;
+  font-size: 10px;
+  letter-spacing:2px;
+  line-height:170%;
 }
-.d3-tip-nyc:after {
-  box-sizing: border-box;
-  display: inline;
-  font-size: 9px;
-  width: 100%;
-  line-height: 1;
-  color: #ff2222;
-  content: "\25BC";
-  position: absolute;
-  text-align: center;
-}
-.d3-tip-nyc.n:after {
-  margin: -1px 0 0 0;
-  top: 100%;
-  left: 0;
-}
-.d3-tip-world {
-  line-height: 1;
-  padding: 4px;
-  background: rgba(0,0,0,.5);
-  color: #fff;
-  border-radius: 3px;
-}
-.d3-tip-world.n:after {
+.timeline-tip.n:after {
   margin: -1px 0 0 0;
   top: 100%;
   left: 0;

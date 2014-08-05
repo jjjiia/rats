@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html>
+  <head>
+	  <meta charset="UTF-8">
+	  
+	<title>Reports of Rodents New York City</title>
+	<script src="static/javascripts/d3.v3.min.js"></script>
+	<script src="static/javascripts/topojson.v1.min.js"></script>
+	<script src="static/javascripts/jquery.min.js"></script>
+	<script src="static/javascripts/d3.tip.v0.6.3.js"></script>
+    <script src="static/javascripts/queue.v1.min.js"></script>
+	<script src="static/javascripts/jquery-ui.min.js"></script>
+	<link rel="stylesheet" href="static/stylesheets/jquery-ui.css" />
+	<link rel="stylesheet" href="static/bootstrap-3.1.1-dist/css/bootstrap.min.css">
+	<script src="static/javascripts/jquery-ui.min.js"></script>
+	<link href="static/bootstrap-3.1.1-dist/css/bootstrap-glyphicons.css" rel="stylesheet">
+<!--	<link href='http://fonts.googleapis.com/css?family=EB+Garamond' rel='stylesheet' type='text/css'>-->
+<link href='http://fonts.googleapis.com/css?family=Satisfy|Dawning+of+a+New+Day' rel='stylesheet' type='text/css'>
+	<link rel="stylesheet" type="text/css" href="static/stylesheets/rats_style.css"> </style>
+	
+      <!-- Google Analytics 
+      <script>
+        (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+        (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+        m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+        })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+        ga('create', 'UA-47759411-2', 'youarehere.cc');
+        ga('send', 'pageview');
+
+      </script> -->
+</head>
+
+<body>
+	
+	<div id="containers">
+		<div id = "ratsloader">
+			<p>Loading ...
+			<img src="static/images/rat_loader.gif" alt="Rats ..."></p>
+		</div>
+		<div id="svg-nyc-map">
+		</div>
+		<div id="svg-world-map"></div>
+		<div id="svg-timeline"></div>
+	</div>
+	
+	<div id = "header">
+		<div id = "logo">
+			<a id="logo" href="http://youarehere.cc"><img src="static/images/logo.png" style="width: 60px"></a>
+		</div>
+		<div id = "title-text">
+			<div id = "title">Boston</div>
+	  <div id = "subtitle">This map visualizes 36,704 rodent incident reports in New York City between 2010 and 2013<a id="showMore" href="#"> ... more </a></div>
+		</div>
+	</div>
+	
+	
+	<div id = "axisLabels">
+		<div id = "incidents">Daily Incidents</div>
+		<div id = "incidentsRange"></div>
+
+		<div id = "temperature">Daily High Temperature</div>
+		<div id = "temperatureRange"></div>
+	</div>
+	<div id="timeline-controls">
+		<p class="play">Play</p>
+		<p class="stop">Stop</p>
+	</div>
+	
+	<div id = "selectionDetails">
+		<div id = "startYear"></div>
+		<div id = "endYear"></div>
+		<div id = "boroughPercent"></div>
+		<div id = "averageGraph"></div>
+		<div id = "boroughBarGraph"><span style="color:#fff">% Complaints</span> vs. <span style="color:green">% Humans*</span></div>
+		
+	</div>
+	
+	
+	<div id = "footer">
+		<div id ="credit">This work is part of the <a href="http://youarehere.cc">You Are Here</a> project +
+	        <a href="http://socialcomputing.media.mit.edu"> The Social Computing Group </a>+
+	        <a href="http://media.mit.edu"target = "blank"> MIT Media Lab </a> + <a href="http://mit.edu" target = "blank"> MIT</a>
+		</div>
+		<div id = "feedback">
+			<a href="http://youarehere.cc/#/report" target = "blank">Feedback</a> | <a href="http://youarehere.cc/#/faq" target = "blank">FAQ</a>
+		</div>
+		<div class="spacer"></div>
+	</div>
+	<script type="text/javascript" charset="utf-8">
+	var csv = "data_processed/boston_current_rats.csv"
+	var cityGeojson = "data_processed/boston-neighborhoods.geojson"
+	var temperature = "data_processed/boston_rats_temperature.csv"
+	</script>
+	<div id = "resetAll">Reset</div>
+	
+	
+	
+		
+		<div id="essayBox2">
+			<div id='essayBox-close2' class="glyphicon glyphicon-remove"></div>
+			<div id = "companyList"></div>
+		</div>
+	
+    
+		<div id="essayBox">
+			<div id='essayBox-close' class="glyphicon glyphicon-remove"></div>
+			<div id='essayContent'>
+				<br/><br/>
+				<p>
+					This map shows the dates and locations of 38163 complaints about rodents in New York City between January 1st 2010 and September 1st 2013. 
+				</p>
+				<p>Rodent complaints include reports of both sightings of rodents, evidence of rodents, and unsanitary rodent conditions. The complaints over this period of time averages 28 per day. Overall, more 311 complaints are recorded when temperatures are higher across categories, this is particularly true in the case of rodent complaints. 
+				</p>
+				<p>The rodent population as reflected in the complaint locations are very similar to the concentration of people in the city. While Queens has significantly less rodent complaints when compared to the population, Brookly, Manhattan, and Staten Island have more. 
+						</p>
+				<p>	
+					Rodent complaints are recorded by the 311 service in New York City. These are made public through the gov.data initiative and can be found at https://nycopendata.socrata.com/Social-Services/311-Service-Requests-from-2010-to-Present/erm2-nwe9. The dataset in its entirety contains all 311 service requests from the infrastructural (road repair, traffic lights, electrical outages) to isolated incidents (heating, lead testing, graffiti removal and noise complaints), as long as they directly affect the everyday lives of citizens. We isolated the noise complaint requests from this larger dataset.
+	</p>
+	<p>
+		*Population Statistics taken from 2013 census.
+	</p>
+			</div>
+		</div>
+	
+	
+	  <script src="boston.js"></script>
+
+    </body>
+</html>
+    

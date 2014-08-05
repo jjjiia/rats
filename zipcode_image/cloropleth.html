@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<style>
+body{
+	background-color:#000;
+}
+.counties {
+  fill: none;
+}
+
+.states {
+  fill: none;
+  stroke: #fff;
+  stroke-linejoin: round;
+}
+
+.q0-9 { fill:rgb(247,251,255); }
+.q1-9 { fill:rgb(222,235,247); }
+.q2-9 { fill:rgb(198,219,239); }
+.q3-9 { fill:rgb(158,202,225); }
+.q4-9 { fill:rgb(107,174,214); }
+.q5-9 { fill:rgb(66,146,198); }
+.q6-9 { fill:rgb(33,113,181); }
+.q7-9 { fill:rgb(8,81,156); }
+.q8-9 { fill:rgb(8,48,107); }
+
+</style>
+<body>
+<script src="http://d3js.org/d3.v3.min.js"></script>
+<script src="http://d3js.org/queue.v1.min.js"></script>
+<script src="http://d3js.org/topojson.v1.min.js"></script>
+<script>
+
+var width = 960,
+    height = 600;
+
+var rateById = d3.map();
+
+var quantize = d3.scale.quantize()
+    .domain([0, .15])
+    .range(d3.range(9).map(function(i) { return "q" + i + "-9"; }));
+
+var projection = d3.geo.mercator()
+					.center([-74.25,40.9])
+					.translate([300, 100])
+					.scale(43000);
+
+var path = d3.geo.path()
+    .projection(projection);
+
+var svg = d3.select("body").append("svg")
+    .attr("width", width)
+    .attr("height", height);
+
+queue()
+    .defer(d3.json, "nyc-zip-codes.geojson")
+    .defer(d3.csv, "rats.csv")
+    .await(ready);
+
+function ready(error, us, rats) {
+  svg.append("g")
+      .attr("class", "counties")
+    .selectAll("path")
+      .data(us.features)
+    .enter().append("path")
+     // .attr("class", "map-item")
+	  .attr("class", function(d){return "zip"+d.properties.id})
+      .attr("d", path)
+	  
+
+	var map = d3.selectAll(".map-item")
+	var leastScale = d3.scale.linear().domain([0, 100]).range(["white","red"]); 
+	var mostScale = d3.scale.linear().domain([500, 950]).range(["white","green"]); 
+
+	for(var i in rats){
+		d3.select(".zip"+rats[i].id)
+		.attr("fill", function(d){
+			if(rats[i].rate>500){
+			return mostScale(rats[i].rate)
+			}else{
+				return "#fff"
+			}
+		})
+		.attr("stroke", function(d){
+			if(rats[i].rate>500){
+			return mostScale(rats[i].rate)
+			}else{
+				return "#fff"
+			}
+		})
+		
+	}
+	map
+		.attr("stroke-opacity", 0)
+		.attr("stroke", colorScale)
+		.attr("fill-opacity", 1)
+		.attr("fill", colorScale)
+	}
+		
+d3.select(self.frameElement).style("height", height + "px");
+
+</script>
