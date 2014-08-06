@@ -3,7 +3,7 @@
   <head>
 	  <meta charset="UTF-8">
 	  
-	<title>Reports of Rodents New York City</title>
+	<title>Reports of Rodents Boston</title>
 	<script src="static/javascripts/d3.v3.min.js"></script>
 	<script src="static/javascripts/topojson.v1.min.js"></script>
 	<script src="static/javascripts/jquery.min.js"></script>
@@ -49,7 +49,7 @@
 		</div>
 		<div id = "title-text">
 			<div id = "title">Boston</div>
-	  <div id = "subtitle">This map visualizes 36,704 rodent incident reports in New York City between 2010 and 2013<a id="showMore" href="#"> ... more </a></div>
+	  <div id = "subtitle">This map visualizes 5,397 rodent incident reports in Boston between 7/1/2011 and 6/12/2014<a id="showMore" href="#"> ... more </a></div>
 		</div>
 	</div>
 	
@@ -107,17 +107,48 @@
 			<div id='essayContent'>
 				<br/><br/>
 				<p>
-					This map shows the dates and locations of 38163 complaints about rodents in New York City between January 1st 2010 and September 1st 2013. 
+					This map shows the dates and locations of 5397 complaints about rodents in Boston between July 1st 2011 and June 12th 2014. 
 				</p>
-				<p>Rodent complaints include reports of both sightings of rodents, evidence of rodents, and unsanitary rodent conditions. The complaints over this period of time averages 28 per day. Overall, more 311 complaints are recorded when temperatures are higher across categories, this is particularly true in the case of rodent complaints. 
+				<p>Rodent complaints include reports of both sightings of rodents, evidence of rodents, and unsanitary rodent conditions. The complaints over this period of time averages 5 per day. Overall, more Mayor's Hotline complaints are recorded when temperatures are higher across categories, this is particularly true in the case of rodent complaints. 
+					
 				</p>
-				<p>The rodent population as reflected in the complaint locations are very similar to the concentration of people in the city. While Queens has significantly less rodent complaints when compared to the population, Brookly, Manhattan, and Staten Island have more. 
+				<p>The rodent population as reflected in the complaint locations are very similar to the concentration of people in the city. While Dorchester has the largest number of complaints, this number is comparable to its large population. The areas of Back Bay, Beacon Hill, Downtown Boston have much higher percentages of complaints when compared to their population.
+						</p>
+						<p>
+							Zipcodes with most complaints:
+							<table>
+								<tr>
+									<td>Zipcode</td>
+									<td>Incidents</td>
+								</tr>
+								<tr>
+									<td>02125</td>
+									<td>722</td>
+								</tr>
+								<tr>
+									<td>02135</td>
+									<td>710</td>
+								</tr>
+								<tr>
+									<td>02134</td>
+									<td>600</td>
+								</tr>
+								<tr>
+									<td>02128</td>
+									<td>335</td>
+								</tr>
+								<tr>
+									<td>02130</td>
+									<td>291</td>
+								</tr>
+							</table>
 						</p>
 				<p>	
-					Rodent complaints are recorded by the 311 service in New York City. These are made public through the gov.data initiative and can be found at https://nycopendata.socrata.com/Social-Services/311-Service-Requests-from-2010-to-Present/erm2-nwe9. The dataset in its entirety contains all 311 service requests from the infrastructural (road repair, traffic lights, electrical outages) to isolated incidents (heating, lead testing, graffiti removal and noise complaints), as long as they directly affect the everyday lives of citizens. We isolated the noise complaint requests from this larger dataset.
+					Rodent complaints are recorded by the Mayor's Hotline in Boston. These are made public through <a href = "https://data.cityofboston.gov/City-Services/Mayor-s-24-Hour-Hotline-Service-Requests/awu8-dc52">City of Boston's data portal</a>. The dataset in its entirety contains all 311 service requests from the infrastructural (road repair, traffic lights, electrical outages) to isolated incidents (heating, lead testing, graffiti removal and noise complaints), as long as they directly affect the everyday lives of citizens. We isolated the noise complaint requests from this larger dataset.
 	</p>
 	<p>
-		*Population Statistics taken from 2013 census.
+		*Population Statistics taken from 2010 census.<br>
+		*The incidents timeline for boston has frequent zeros because the hotline for recording incidents is not open on weekends, resulting automatically in zero incidents for 2 days per week. 
 	</p>
 			</div>
 		</div>

@@ -1,13 +1,4 @@
 
-var config = {
-	zoom: .95,
-	timeline: {
-		timer: null,
-		width: 800,
-		barWidth: 6,
-		xScale: d3.scale.linear().domain([0,1305]).range([20, 800])
-	}
-}
 
 var globalProjection = d3.geo.mercator()
 				.center([-71.190277,42.398497])
@@ -21,9 +12,20 @@ var global = {
 	temperature:null,
 	usMapWidth:580,
 	usMapHeight:580,
-	dataLength:null
+	dataLength:null,
+	dateIdmax: 2719,
+	dateIdmin: 1642
 }
 
+var config = {
+	zoom: .95,
+	timeline: {
+		timer: null,
+		width: 800,
+		barWidth: 6,
+		xScale: d3.scale.linear().domain([global.dateIdmin,global.dateIdmax]).range([20, 800])
+	}
+}
 //put currentSelection in to global
 var currentSelection = {
 	zipcode: null,
@@ -102,22 +104,38 @@ function renderMap(data, selector,width,height) {
 	
 	var path = d3.geo.path().projection(projection);
 	
+	var tip = d3.tip()
+	.attr("class", "map-tip")
+	.offset([100,0])
+	
+	
+	
 	var svg = d3.select(selector).append("svg")
 		.attr('height', global.usMapWidth)
 		.attr('width',global.usMapHeight);
+		
 	var map = svg.selectAll(".map")
 		.data(data.features)
-		.enter().append("path")
-		.attr("d", path)
-		.attr("class", "map-item")
-		.attr("cursor", "pointer")
-		.attr("stroke-opacity", 1)
-		.attr("stroke", "#000")
-		.attr("fill-opacity", .2)
-		.attr("fill", "green")
-		.on("mouseover", function(d) {
-			console.log(d.properties.Name)
-		});
+		.enter()	
+	svg.call(tip);
+
+	map.append("path")
+	.attr("d", path)
+	.attr("class", "map-item")
+	.attr("cursor", "pointer")
+	.attr("stroke-opacity", 1)
+	.attr("stroke", "#000")
+	.attr("fill-opacity", .2)
+	.attr("fill", "green")
+	.on("mouseover", function(d) {
+		tip.html(d.properties.Name)
+		tip.show()
+	})
+	.on("mouseout", function(d) {
+		tip.hide()
+	});
+	
+		
 	return map
 }
 
@@ -186,10 +204,11 @@ d3.select("#resetAll")
 function resetAll(){
 	currentSelection.jurisdiction = null;
 	currentSelection.zipcode = null;
-	updateSliderRange(1, 1305);
+	updateSliderRange(global.dateIdmin, global.dateIdmax);
+	var numberofDays = global.dateIdmax-global.dateIdmin
 	d3.selectAll("#svg-timeline .slider").attr("opacity", 0)
 	updateMaps();
-	d3.select("#boroughPercent").html("Total: " + global.data.length + "<br/> Average: "+parseInt(global.data.length/1667) + " per day")
+	d3.select("#boroughPercent").html("Total: " + global.data.length + "<br/> Average: "+parseInt(global.data.length/numberofDays) + " per day")
 }
 
 
@@ -298,8 +317,12 @@ function statsByBorough(data){
 	
 	d3.select("#averageGraph svg").remove()
 	var averageGraph = d3.select("#averageGraph").append("svg").append("g")
-	var xScale = d3.scale.linear().domain([2,77]).range([0,150])
+	
+	var max = 27
+	var min = 1
+	var xScale = d3.scale.linear().domain([min,max]).range([0,150])
 	var barwidth = 2
+
 	
 	averageGraph.append("rect")
 	.attr("x", 0 )
@@ -311,34 +334,35 @@ function statsByBorough(data){
 	
 	
 	averageGraph.append("rect")
-	.attr("x",xScale(77))
+	.attr("x",xScale(max))
 	.attr("y",0)
 	.attr("width", barwidth)
 	.attr("height", 10)
 	.attr("fill", "green")
 	
 	averageGraph.append("text")
-	.attr("x",xScale(77) - 8)
+	.attr("x",xScale(max) - 8)
 	.attr("y", 25)
-	.text("77")
+	.text(max)
 	.attr("fill", "green")
+	
 	averageGraph.append("text")
-	.attr("x",xScale(77) - 8)
+	.attr("x",xScale(max) - 8)
 	.attr("y", 35)
 	.text("max")
 	.attr("fill", "green")
 	
 	averageGraph.append("rect")
-	.attr("x",xScale(2))
+	.attr("x",xScale(min))
 	.attr("y",0)
 	.attr("width", barwidth)
 	.attr("height", 10)
 	.attr("fill", "green")
 	
 	averageGraph.append("text")
-	.attr("x",xScale(2))
+	.attr("x",xScale(min))
 	.attr("y", 25)
-	.text("2")
+	.text(min)
 	.attr("fill", "green")
 	averageGraph.append("text")
 	.attr("x",xScale(2))
@@ -376,7 +400,6 @@ function statsByBorough(data){
 }
 
 function boroughBarGraph(data){
-	console.log(data.length)
 	var wScale = d3.scale.linear().domain([0,20]).range([0,100])
 	var barWidth = 10
 	var baroffset = 120
@@ -576,8 +599,8 @@ function drawTemperatureTimeline(data){
 	var width = 800
 	var marginH = 20
 	var marginW = 4	
-	var yScaleTemperature = d3.scale.linear().domain([1,100]).range([height-20, height/2]);
-	var yScaleIncidents = d3.scale.linear().domain([1,70]).range([height/2, 4]);
+	var yScaleTemperature = d3.scale.linear().domain([1,100]).range([height, height/2+10]);
+	var yScaleIncidents = d3.scale.linear().domain([1,27]).range([height/2, 4]);
 	
 	var xScale = config.timeline.xScale
 	
@@ -588,15 +611,15 @@ function drawTemperatureTimeline(data){
 	var temperatureGraph = d3.select("#svg-timeline g")
 	
 	var temperatureline = d3.svg.line()
-	    .x(function(d,i) { return xScale(i);})
+	    .x(function(d,i) { return xScale(d["dateId"]);})
 	    .y(function(d) { return yScaleTemperature(d["Max TemperatureF"]);})
 	    .interpolate("basis");
-	
+		
 	var incidentsline = d3.svg.line()
-	    .x(function(d,i) { return xScale(i);})
+	    .x(function(d,i) { return xScale(d["dateId"]);})
 	    .y(function(d) { return yScaleIncidents(d["Incident Reports"]);})
 	    .interpolate("basis");
-	
+
 	var tip = d3.tip()
 	.attr("class", "timeline-tip")
 	
@@ -611,14 +634,14 @@ function drawTemperatureTimeline(data){
 	.on("mouseover", function(){
 		var currentX = d3.event.x
 		var currentY = d3.event.y
-		var dateId = Math.floor(xScale.invert(currentX))
-		var date =  data[dateId]["Date"]
-		var maxTemperature = data[dateId]["Max TemperatureF"]
-		var minTemperature = data[dateId]["Min TemperatureF"]
-		var incidents = data[dateId]["Incident Reports"]
+		var dateId = String(Math.floor(xScale.invert(currentX)))
+		var date =  data[dateId-global.dateIdmin]["Date"]
+		var maxTemperature = data[dateId-global.dateIdmin]["Max TemperatureF"]
+		var minTemperature = data[dateId-global.dateIdmin]["Min TemperatureF"]
+		var incidents = data[dateId-global.dateIdmin]["Incident Reports"]
 		
 		tip.html(date + "<br/>"+minTemperature+"&deg - "+maxTemperature+"&deg<br/> "+ incidents+" Complaints")
-		.offset([-40,currentX-400])
+		.offset([0,currentX-400])
 		tip.show()
 	})
 	.on("mouseout", function(){
@@ -634,11 +657,11 @@ function drawTemperatureTimeline(data){
 	.on("mouseover", function(){
 		var currentX = d3.event.x
 		var currentY = d3.event.y
-		var dateId = Math.floor(xScale.invert(currentX))
-		var date =  data[dateId]["Date"]
-		var maxTemperature = data[dateId]["Max TemperatureF"]
-		var minTemperature = data[dateId]["Min TemperatureF"]
-		var incidents = data[dateId]["Incident Reports"]
+		var dateId = String(Math.floor(xScale.invert(currentX)))
+		var date =  data[dateId-global.dateIdmin]["Date"]
+		var maxTemperature = data[dateId-global.dateIdmin]["Max TemperatureF"]
+		var minTemperature = data[dateId-global.dateIdmin]["Min TemperatureF"]
+		var incidents = data[dateId-global.dateIdmin]["Incident Reports"]
 		
 		tip.html(date + "<br/>"+minTemperature+"&deg - "+maxTemperature+"&deg<br/> "+ incidents+" Complaints")
 		.offset([0,currentX-400])
@@ -647,11 +670,9 @@ function drawTemperatureTimeline(data){
 	.on("mouseout", function(){
 		tip.hide()
 	})
-	
 	var minMax = findMinMax(data)
 	d3.select("#incidentsRange").html(minMax[1]+" - "+ minMax[0])
 	d3.select("#temperatureRange").html(minMax[3] + "&deg"+" - "+ minMax[2] + "&deg F")
-		
 }
 
 function findMinMax(data){
@@ -688,8 +709,8 @@ function dataDidLoad(error, nycPaths, data, temperature) {
 	global.temperature = temperature
 	var nycMap = initNycMap(nycPaths, data)
 	var timeline = initTimeline(data)
-	//var temperature = drawTemperatureTimeline(temperature)
-	//var incidents = drawIncidentsTimeline(data)
+	var temperature = drawTemperatureTimeline(temperature)
+	
 	global.dataLength =data.length
 	d3.selectAll("#svg-timeline .slider").attr("opacity", 0)
 
@@ -704,7 +725,7 @@ function dataDidLoad(error, nycPaths, data, temperature) {
 		$("#timeline-controls .play").hide()
 		$("#timeline-controls .stop").show()
 //		var direction = 1
-		var sliderRange = 7		
+		var sliderRange = 14
 		var year = Math.floor(config.timeline.xScale.invert(leftHandlePosition()))
 		if(year<0){
 			year = 0
@@ -715,7 +736,7 @@ function dataDidLoad(error, nycPaths, data, temperature) {
 			d3.select("#svg-nyc-map svg").selectAll("circle").attr("opacity", .3)
 			d3.selectAll(".slider").attr("opacity", .1)
 			
-			if(year+sliderRange >=1305){
+			if(year+sliderRange >=global.dateIdmax){
 				timelineControlStop()
 			}
 			year = year + 2
