@@ -252,21 +252,43 @@ function statsByBorough(data){
 	var overallPerDay = parseInt(global.data.length/totalDatesInRange)
 	var detailedText = []
 	var population = {
-		"Brooklyn": 2592149,
-		"Manhattan":1626159,
-		"Staten Island":472621,
-		"Bronx":1418733,
-		"Queens":2296175,
-		"total":8405837
+		"Back Bay": 18088,
+		"South Boston / South Boston Waterfront":35200,
+		"South Boston":33311,
+		"Dorchester":114235,
+		"Charlestown":16439,
+		"Mattapan":22600,
+		"Hyde Park":30637,
+		"West Roxbury":30446,
+		"Brighton":45801,
+		"Allston":29196,
+		"Allston / Brighton": 74997,
+		"Downtown / Financial District":11215,
+		"Beacon Hill":9023,
+		"West End":4080,
+		"Roxbury":48454,
+		"North End":10131,
+		"Chinatown":4444,
+		"Leather District":639,
+		"Bay Village":1312,
+		"Fenway / Kenmore / Audubon Circle / Longwood":37581,		
+		"Jamaica Plain":37468,
+		"Roslindale":28680,
+		"Mission Hill":16305,
+		"East Boston":40508,
+		"South End":24577,
+		"Boston":0,
+		"total":617594 
 	} 
 	for(var item in groupedData){
-		var currentBorough = toTitleCase(item); 
+
+		var currentBorough = toTitleCase(item);
 		var currentLength = groupedData[item].length;
 		var currentPercent = parseInt(currentLength/sum *100)
 		var currentPerDay = parseInt(sum/datesInRange)
 		var currentPopulation = population[currentBorough]
 		var currentPopPercent = parseInt(currentPopulation/population["total"]*100)
-		if(currentBorough != "Unspecified"){
+		if(currentBorough != "Unspecified" && currentBorough != "Greater Mattapan"&& currentBorough != "Allston / Brighton" && currentPercent != 0 && currentPopPercent !=0){
 			detailedText.push([currentBorough, currentPercent, currentPopPercent])
 		}
 	}
@@ -354,46 +376,61 @@ function statsByBorough(data){
 }
 
 function boroughBarGraph(data){
-	var wScale = d3.scale.linear().domain([0,50]).range([0,200])
+	console.log(data.length)
+	var wScale = d3.scale.linear().domain([0,20]).range([0,100])
 	var barWidth = 10
+	var baroffset = 120
 	d3.select("#boroughBarGraph svg").remove()
 	var boroughGraph = d3.select("#boroughBarGraph").append("svg").append("g").selectAll("rect")
 	.data(data)
 	.enter()
 	
 	boroughGraph.append("rect")
-	.attr("x", 120)
-	.attr("y", function(d,i){return i*barWidth*3+4})
+	.attr("x", baroffset)
+	.attr("y", function(d,i){return i*barWidth*2})
 	.attr("height", barWidth-4)
 	.attr("width", function(d){return wScale(d[1])})
 	.attr("fill", "#fff")
 	
 	boroughGraph.append("text")
-	.attr("x", function(d){return wScale(d[1])+130})
-	.attr("y",function(d,i){return i*barWidth*3+8})
+	.attr("x", function(d){return wScale(d[1])+baroffset+10})
+	.attr("y",function(d,i){return i*barWidth*2+6})
 	.text(function(d){return d[1]+"%"})
 	.attr("fill", "#fff")
 	.attr("font-size", 9)
 	
 	
 	boroughGraph.append("rect")
-	.attr("x", 120)
-	.attr("y", function(d,i){return i*barWidth*3+barWidth+4})
+	.attr("x", baroffset)
+	.attr("y", function(d,i){return i*barWidth*2+barWidth})
 	.attr("height", barWidth-4)
 	.attr("width", function(d){return wScale(d[2])})
 	.attr("fill", "green")
 	.attr("opacity", .5)
+	
 	boroughGraph.append("text")
-	.attr("x", function(d){return wScale(d[2])+130})
-	.attr("y",function(d,i){return i*barWidth*3+barWidth*2})
+	.attr("x", function(d){return wScale(d[2])+baroffset+2})
+	.attr("y",function(d,i){return i*barWidth*2+barWidth*2-4})
 	.text(function(d){return d[2]+"%"})
 	.attr("fill", "green")
 	.attr("font-size", 9)
 	
 	boroughGraph.append("text")
 	.attr("x", 0)
-	.attr("y",function(d,i){return (i+1)*barWidth*3-15})
-	.text(function(d){return d[0]})
+	.attr("y",function(d,i){return (i+1)*barWidth*2-10})
+	.text(function(d){
+		if(d[0]== "Downtown / Financial District"){
+			return "Downtown"
+		}else if(d[0] == "South Boston / South Boston Waterfront"){
+			return "South Boston"
+		}
+		else if(d[0] == "Fenway / Kenmore / Audubon Circle / Longwood"){
+			return "Fenway Area"	
+		}
+		else{
+			return d[0]			
+		}
+	})
 	.attr("fill", "#fff")
 	//.attr("text-anchor", "end")
 	
@@ -530,7 +567,8 @@ function initTimeline(data) {
 }
 
 function drawIncidentsTimeline(data){
-	
+	var groupedData = table.group(data, ["DateId"])
+	console.log(groupedData)
 }
 
 function drawTemperatureTimeline(data){
@@ -650,8 +688,8 @@ function dataDidLoad(error, nycPaths, data, temperature) {
 	global.temperature = temperature
 	var nycMap = initNycMap(nycPaths, data)
 	var timeline = initTimeline(data)
-	var temperature = drawTemperatureTimeline(temperature)
-	
+	//var temperature = drawTemperatureTimeline(temperature)
+	//var incidents = drawIncidentsTimeline(data)
 	global.dataLength =data.length
 	d3.selectAll("#svg-timeline .slider").attr("opacity", 0)
 
