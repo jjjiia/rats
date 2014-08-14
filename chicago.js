@@ -14,7 +14,7 @@ var global = {
 	usMapHeight:580,
 	dataLength:null,
 	dateIdmax: 2759,
-	dateIdmin: 1281,
+	dateIdmin: 1456,
 	maxPerDay:514,
 	minPerDay:1
 }
@@ -270,33 +270,80 @@ function statsByBorough(data){
 	
 	//console.log(groupedData)
 	var sum = data.length
-	var overallPerDay = parseInt(global.data.length/totalDatesInRange)
+	var overallPerDay = Math.round(global.data.length/totalDatesInRange* 100) / 100
 	var detailedText = []
 	var population = {
-		"1":76197,
-		"2":79915,
-		"3":77152,
-		"4":75773,
-		"5":74308,
-		"6":76598,
-		"7":71068,
-		"8":79712,
-		"total":601723
+		"42":74781,
+		"2":59303,
+		"32":54407,
+		"44":53584,
+		"43":50616,
+		"46":48143,
+		"48":48038,
+		"41":47532,
+		"47":47347,
+		"36":47258,
+		"1":46552,
+		"45":45726,
+		"38":45558,
+		"13":44943,
+		"11":43328,
+		"39":43277,
+		"25":43267,
+		"23":43249,
+		"50":43220,
+		"40":43125,
+		"49":42026,
+		"31":41159,
+		"27":40851,
+		"18":40309,
+		"12":40119,
+		"33":39985,
+		"19":39737,
+		"14":39526,
+		"35":39424,
+		"4":39331,
+		"30":39098,
+		"6":38160,
+		"21":38151,
+		"26":37551,
+		"29":37011,
+		"5":36909,
+		"8":36685,
+		"10":36246,
+		"37":36124,
+		"34":35112,
+		"7":34921,
+		"28":33999,
+		"22":33918,
+		"20":33693,
+		"24":33544,
+		"17":32577,
+		"15":32365,
+		"9":31087,
+		"3":30662,
+		"16":30434,
+		"total":2073968
 	} 
 	for(var item in groupedData){
 
 		var currentBorough = toTitleCase(item);
 		var currentLength = groupedData[item].length;
-		var currentPercent = parseInt(currentLength/sum *100)
-		var currentPerDay = parseInt(sum/datesInRange)
+		var currentPercent = parseFloat(currentLength/sum *100)
+		var currentPerDay = parseFloat(sum/datesInRange)
 		var currentPopulation = population[currentBorough]
-		var currentPopPercent = parseInt(currentPopulation/population["total"]*100)
-		if(currentBorough != "Unspecified" && currentBorough != "Greater Mattapan"&& currentBorough != "Allston / Brighton" && currentPercent != 0 && currentPopPercent !=0){
-			detailedText.push([currentBorough, currentPercent, currentPopPercent])
+		var currentPopPercent = parseFloat(currentPopulation/population["total"]*100)
+		if(currentPercent-1 > currentPopPercent || currentPopPercent-1> currentPercent && Math.floor(currentPercent) !=0){
+			detailedText.push([currentBorough, Math.round(currentPercent* 100) / 100, Math.round(currentPopPercent* 100) / 100])
 		}
+		detailedText = detailedText.sort(
+		  function(a,b) {
+		   return b[1]-a[1] || a[0].localeCompare(b[0]);
+		  }
+		);
 	}
 
-	d3.select("#boroughPercent").html("<span style=\"color:green\"><strong>Overall Average: </strong>"+overallPerDay+"</span><br/>Current Average: "+currentPerDay)
+	d3.select("#boroughPercent").html("<span style=\"color:green\"><strong>Overall Average: </strong>"+overallPerDay+"</span><br/>Current Average: "+Math.round(currentPerDay* 100) / 100)
 	
 	
 	d3.select("#averageGraph svg").remove()
@@ -394,14 +441,14 @@ function boroughBarGraph(data){
 	
 	boroughGraph.append("rect")
 	.attr("x", baroffset)
-	.attr("y", function(d,i){return i*barWidth*3})
+	.attr("y", function(d,i){return i*barWidth*2.5})
 	.attr("height", barWidth-4)
 	.attr("width", function(d){return wScale(d[1])})
 	.attr("fill", "#fff")
 	
 	boroughGraph.append("text")
 	.attr("x", function(d){return wScale(d[1])+baroffset+10})
-	.attr("y",function(d,i){return i*barWidth*3+6})
+	.attr("y",function(d,i){return i*barWidth*2.5+6})
 	.text(function(d){return d[1]+"%"})
 	.attr("fill", "#fff")
 	.attr("font-size", 9)
@@ -409,7 +456,7 @@ function boroughBarGraph(data){
 	
 	boroughGraph.append("rect")
 	.attr("x", baroffset)
-	.attr("y", function(d,i){return i*barWidth*3+barWidth})
+	.attr("y", function(d,i){return i*barWidth*2.5+barWidth})
 	.attr("height", barWidth-4)
 	.attr("width", function(d){return wScale(d[2])})
 	.attr("fill", "green")
@@ -417,14 +464,14 @@ function boroughBarGraph(data){
 	
 	boroughGraph.append("text")
 	.attr("x", function(d){return wScale(d[2])+baroffset+2})
-	.attr("y",function(d,i){return i*barWidth*3+barWidth*2-4})
+	.attr("y",function(d,i){return i*barWidth*2.5+barWidth*2-4})
 	.text(function(d){return d[2]+"%"})
 	.attr("fill", "green")
 	.attr("font-size", 9)
 	
 	boroughGraph.append("text")
 	.attr("x", 0)
-	.attr("y",function(d,i){return (i+1)*barWidth*3-15})
+	.attr("y",function(d,i){return (i+1)*barWidth*2.5-15})
 	.text(function(d){
 			return "Ward "+d[0]			
 	})
@@ -524,7 +571,7 @@ function initTimeline(data) {
 		.attr("x", 20)
 		.attr("y", 0)
 		.attr("width", width-20)
-		.attr("height", height-marginH)
+		.attr("height", height)
 		.attr("fill", "#fff")
 		.attr("opacity", 0.15)
 		.call(d3.behavior.drag()
@@ -565,7 +612,7 @@ function initTimeline(data) {
 
 function drawIncidentsTimeline(data){
 	var groupedData = table.group(data, ["DateId"])
-	console.log(groupedData)
+	//console.log(groupedData)
 }
 
 function drawTemperatureTimeline(data){
@@ -573,7 +620,7 @@ function drawTemperatureTimeline(data){
 	var width = 800
 	var marginH = 20
 	var marginW = 4	
-	console.log(findMinMax(global.data))
+	//console.log(findMinMax(global.temperature))
 	var yScaleTemperature = d3.scale.linear().domain([1,100]).range([height, height/2+10]);
 	var yScaleIncidents = d3.scale.linear().domain([1,global.maxPerDay]).range([height/2, 4]);
 	
@@ -679,7 +726,7 @@ function timelineControlStop() {
 }
 
 function dataDidLoad(error, nycPaths, data, temperature) {
-	findMinMax(data)
+	//findMinMax(data)
 	
 	global.nycPaths = nycPaths
 	global.data = data	

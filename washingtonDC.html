@@ -3,7 +3,7 @@
   <head>
 	  <meta charset="UTF-8">
 	  
-	<title>Reports of Rats New York City</title>
+	<title>Reports of Rats Washington DC</title>
 	<script src="static/javascripts/d3.v3.min.js"></script>
 	<script src="static/javascripts/topojson.v1.min.js"></script>
 	<script src="static/javascripts/jquery.min.js"></script>
@@ -16,8 +16,7 @@
 	<link href="static/bootstrap-3.1.1-dist/css/bootstrap-glyphicons.css" rel="stylesheet">
 <!--	<link href='http://fonts.googleapis.com/css?family=EB+Garamond' rel='stylesheet' type='text/css'>-->
 <link href='http://fonts.googleapis.com/css?family=Satisfy|Dawning+of+a+New+Day' rel='stylesheet' type='text/css'>
-	<link rel="stylesheet" type="text/css" href="static/stylesheets/rats_style.css"> </style>
-	
+	<link rel="stylesheet" type="text/css" href="static/stylesheets/boston_rats_style.css"> </style>
 	<script>
 	  var BASE_URL = '/w/'; 
 		
@@ -106,8 +105,8 @@
 			<a id="logo" href="http://youarehere.cc"><img src="static/images/logo.png" style="width: 60px"></a>
 		</div>
 		<div id = "title-text">
-			<div id = "title">New York City</div>
-	  <div id = "subtitle">This map visualizes 36,704 rodent incident reports in New York City between 2010 and 2013<a id="showMore" href="#"> ... more </a></div>
+			<div id = "title"> Washington DC</div>
+	  <div id = "subtitle">This map visualizes 2,825 rodent incident reports in Washington DC in 2010<a id="showMore" href="#"> ... more </a></div>
 		</div>
 	</div>
 	
@@ -141,36 +140,32 @@
 		</div>
 		<div id = "feedback">
 			<a href="http://youarehere.cc/#/report" target = "blank">Feedback</a> | <a href="http://youarehere.cc/#/faq" target = "blank">FAQ</a>
-		|
-		<script type="text/javascript">
-				  function embedMe(){
-				    // We subtracting 48px from the height to
-				    // approximately account for embed mode not having
-				    // a footer and having a smaller title.
-				    var params = {
-				      map: window.location.href,
-				      width: 1000,
-					  height:750
-					  //width: $('body > .container').outerWidth(),
-				      //height: $('body > .container').outerHeight()
-				    };
-				    window.location.href = '/#/embed/'+encodeURIComponent(JSON.stringify(params));
-				  }
-				</script>
-				<a href="#" onclick="embedMe()">Embed</a>
-		
+			|
+			<script type="text/javascript">
+					  function embedMe(){
+					    // We subtracting 48px from the height to
+					    // approximately account for embed mode not having
+					    // a footer and having a smaller title.
+					    var params = {
+					      map: window.location.href,
+					      width: 1000,
+						  height:750
+						  //width: $('body > .container').outerWidth(),
+					      //height: $('body > .container').outerHeight()
+					    };
+					    window.location.href = '/#/embed/'+encodeURIComponent(JSON.stringify(params));
+					  }
+					</script>
+					<a href="#" onclick="embedMe()">Embed</a>
 		</div>
 		<div class="spacer"></div>
 	</div>
 	<script type="text/javascript" charset="utf-8">
-	var csv = "data_processed/nyc_current_rats.csv"
-	var cityGeojson = "data_processed/nyc-borough-boundaries-polygon.geojson"
-	var temperature = "data_processed/nyc_rats_temperature.csv"
+	var csv = "data_processed/washingtonDC_current_rats.csv"
+	var cityGeojson = "data_processed/washingtonDC-zipcodes.geojson"
+	var temperature = "data_processed/washingtonDC_rats_temperature.csv"
 	</script>
 	<div id = "resetAll">Reset</div>
-	
-	
-	
 		
 		<div id="essayBox2">
 			<div id='essayBox-close2' class="glyphicon glyphicon-remove"></div>
@@ -183,66 +178,86 @@
 			<div id='essayContent'>
 				<br/><br/>
 				<p>
-					This map shows the dates and locations of 38163 complaints about rodents in New York City between January 1st 2010 and September 1st 2013. 
+					This map shows the dates and locations of 2825 complaints about rodents in Washington DC between January 1st 2011 and December 31st 2010. 
 				</p>
-				<p>Rodent complaints include reports of both sightings of rodents, evidence of rodents, and unsanitary rodent conditions. The complaints over this period of time averages 28 per day. Overall, more 311 complaints are recorded when temperatures are higher across categories, this is particularly true in the case of rodent complaints. 
+				<p>Rodent complaints include reports of both sightings of rodents, evidence of rodents, and unsanitary rodent conditions. The complaints over this period of time averages 7 per day. Overall, more 311 complaints are recorded when temperatures are higher across categories, this is particularly true in the case of rodent complaints. 
+					
 				</p>
-				<p>The rodent population as reflected in the complaint locations are very similar to the concentration of people in the city. Queens has significantly less rodent complaints when compared to the population, Brooklyn, Manhattan, and Staten Island have more. 
-				</p>
-				<p>The zipcodes with the most complaints of rodents are largely in Brooklyn. Overall, complaints are concentrated in the zipcodes: </p>
-		<table>
-				
-			<tr>
-			<td><img src="static/images/nyc_most.png" alt=""></td>	
-			<td>
-				<table>
-					<tr>
-						<td>Zipcode</td>
-						<td>Complaints</td>
-						<td>Borough</td>
-					</tr>
-					<tr>
-						<td>11221</td>
-						<td>950</td>
-						<td>Brooklyn</td>
-					</tr>		
-					<tr>
-						<td>11207</td>
-						<td>757</td>
-						<td>Brooklyn</td>
-					</tr>
-					<tr>
-						<td>11233</td>
-						<td>753</td>
-						<td>Brooklyn</td>
-					</tr>
-					<tr>
-						<td>11216</td>
-						<td>671</td>
-						<td>Brooklyn</td>
-					</tr>
-					<tr>
-						<td>10467</td>
-						<td>592</td>						
-						<td>Bronx</td>
-					</tr>
-				</table>
-			</td>
-			</tr>
-		</table>
-				
-				
+				<p>Each of Washington DC's Wards have similar population sizes, ranging between 11 and 13 percent of the total city human population. The rodent population is concentrated in Ward 1, Ward 4, and Ward 5 with each ward having a significant difference between the percentage of complaints and percentage of residents. Ward 3 and Ward 8 have the least complaints, especially when copared to the population of the ward area. When comparing with overall percentage of complaints
+						</p>
+						<p>
+							<table>
+								<tr>
+									<td>Ward</td>
+									<td>Rats</td>
+									<td>Overall Incidents</td>
+									<td>Percentage of Rats</td>
+								</tr>
+								<tr>
+									<td>1</td>
+									<td>639</td>
+									<td>32965</td>
+									<td>1.94</td>
+								</tr>
+								<tr>
+									<td>2</td>
+									<td>417</td>
+									<td>144924</td>
+									<td>0.29</td>
+								</tr>
+								<tr>
+									<td>3</td>
+									<td>102</td>
+									<td>29223</td>
+									<td>0.35</td>
+								</tr>
+								<tr>
+									<td>4</td>
+									<td>487</td>
+									<td>33924</td>
+									<td>2.44</td>
+								</tr>
+								<tr>
+									<td>5</td>
+									<td>438</td>
+									<td>31912</td>
+									<td>1.37</td>
+									
+								</tr>
+								<tr>
+									<td>6</td>
+									<td>346</td>
+									<td>69252</td>
+									<td>0.5</td>
+									
+								</tr>
+								<tr>
+									<td>7</td>
+									<td>148</td>
+									<td>26094</td>
+									<td>0.57</td>
+									
+								</tr>
+								<tr>
+									<td>8</td>
+									<td>248</td>
+									<td>15981</td>
+									<td>1.55</td>
+									
+								</tr>
+							</table>
+						</p>
 				<p>	
-					Rodent complaints are recorded by the 311 service in New York City. These are made public through the gov.data initiative. The dataset in its entirety contains all 311 service requests from the infrastructural (road repair, traffic lights, electrical outages) to isolated incidents (heating, lead testing, graffiti removal and noise complaints), as long as they directly affect the everyday lives of citizens. We isolated the rodent complaint requests from this larger dataset.
+					Rodent complaints are recorded by the 311 Service in Washington DC, and published through the <a href = "http://311.dc.gov/">City of Washington DC's data portal</a>. The dataset in its entirety contains all 311 service requests from the infrastructural (road repair, traffic lights, electrical outages) to isolated incidents (heating, lead testing, graffiti removal and noise complaints), as long as they directly affect the everyday lives of citizens. We isolated the noise complaint requests from this larger dataset.
 	</p>
 	<p>
-		*Population Statistics taken from 2013 census.
+		*Population Statistics taken from 2010 census.<br>
 	</p>
 			</div>
 		</div>
 	
 	
-	  <script src="index.js"></script>
+	  <script src="washingtonDC.js"></script>
 
     </body>
 </html>

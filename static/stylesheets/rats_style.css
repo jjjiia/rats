@@ -60,7 +60,7 @@ a{
 		
 }
 
-#containers {width:1000px;height:700px;position:relative;float:top;}
+#containers {width:1000px;height:750px;position:relative;float:top;}
 #containers #ratsloader{
 	position:absolute; left:200px;
 	top:300px;
